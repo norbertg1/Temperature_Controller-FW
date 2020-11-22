@@ -14,4 +14,6 @@ EWARM/*
 *.mk
 *.obj
 *.elf
+*.ld
+*.bin
 .mxproject
