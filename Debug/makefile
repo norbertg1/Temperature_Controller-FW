@@ -8,6 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include Drivers/u8g2/csrc/subdir.mk
 -include Drivers/bmp280/subdir.mk
 -include Drivers/STM32F3xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
@@ -48,7 +49,7 @@ all: Temperature\ controller.elf secondary-outputs
 
 # Tool invocations
 Temperature\ controller.elf: $(OBJS) $(USER_OBJS) D:\STM32_WORKDIR\Temperature_Controller-SW\STM32F373CCTX_FLASH.ld
-	arm-none-eabi-gcc -o "Temperature controller.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\STM32_WORKDIR\Temperature_Controller-SW\STM32F373CCTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Temperature controller.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "Temperature controller.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\STM32_WORKDIR\Temperature_Controller-SW\STM32F373CCTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Temperature controller.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

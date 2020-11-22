@@ -20,7 +20,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -107,10 +106,23 @@ int main(void)
   HAL_SDADC_CalibrationStart(&hsdadc1, SDADC_CALIBRATION_SEQ_3);
   HAL_SDADC_PollForCalibEvent(&hsdadc1, 5000);
   HAL_SDADC_Start_DMA(&hsdadc1, (uint32_t*)adc_buf, ADC_BUF_LEN);
-  ssd1306_Init();
-  HAL_Delay(1000);
-  ssd1306_Fill(White);
-  ssd1306_UpdateScreen();
+  //-----OLED display setup----
+  u8g2_Setup_ssd1306_128x64_noname_1(&u8g2, U8G2_R0, u8x8_byte_stm32_hw_i2c, u8x8_stm32_gpio_and_delay);
+  u8g2_InitDisplay(&u8g2);
+  u8g2_SetPowerSave(&u8g2, 0);
+  u8g2_FirstPage(&u8g2);
+     do
+     {
+       u8g2_SetFont(&u8g2, u8g2_font_luBIS08_tf);
+       u8g2_DrawStr(&u8g2, 0, 15, "Hello  °C");
+       u8g2_DrawCircle(&u8g2, 64, 40, 10, U8G2_DRAW_ALL);
+     } while (u8g2_NextPage(&u8g2));
+	HAL_Delay(2000);
+  //ssd1306_Init();
+  //set_defaults();
+  //HAL_Delay(1000);
+  //ssd1306_Fill(Black);
+  //ssd1306_UpdateScreen();
   /* USER CODE END 2 */
 
   /* Infinite loop */

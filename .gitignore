@@ -8,7 +8,10 @@ EWARM/*
 
 # Object files
 *.o
+*.su
+*.d
 *.ko
+*.mk
 *.obj
 *.elf
 .mxproject

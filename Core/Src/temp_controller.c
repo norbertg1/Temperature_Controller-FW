@@ -41,9 +41,11 @@ void toggle_red_LED(){
 }
 
 void blink(){
-	toggle_red_LED();
-	toggle_green_LED();
-	HAL_Delay(1000);
+	while(1){
+		toggle_red_LED();
+		toggle_green_LED();
+		HAL_Delay(1000);
+	}
 }
 
 void start_pwm(TIM_HandleTypeDef *htim){
@@ -60,15 +62,34 @@ void update_pid(){
 
 }
 
+void set_defaults(){
+	HAL_Delay(500);
+	temp_controller.target_temp = 0;
+	write_to_display();
+}
+
 //Interrupt function called on button press
 void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
+	//HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
 	static int x=0,y=0,set_temp=0;
 	if (GPIO_Pin == PUSH_BUTTON_Pin) x++;
 	if (GPIO_Pin == ENCODER_PUSH_BUTTON_Pin)	y++;
 	if (GPIO_Pin == ENCODER_A_Pin){
-		if(HAL_GPIO_ReadPin(ENCODER_A_GPIO_Port,ENCODER_A_Pin)	==	HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_B_Pin))	temp_controller.target_temp++;
-		else	temp_controller.target_temp--;
+		if(HAL_GPIO_ReadPin(ENCODER_A_GPIO_Port,ENCODER_A_Pin)	==	HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_B_Pin))	{
+			temp_controller.target_temp-=0.1;
+		}
+		else	{
+			temp_controller.target_temp+=0.1;
+		}
 	}
+	write_to_display();
+	//HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+}
+
+void write_to_display(){
+	char str[10],chars;
+	chars = ftoa(temp_controller.target_temp, str, 2);
+
 }
 
 //Interrupt function called on completed ADC conversion

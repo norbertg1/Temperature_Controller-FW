@@ -10,6 +10,7 @@
 
 #include "main.h"
 #include "bmp280.h"
+#include "float_to_string.h"
 
 #define ADC_BUF_LEN 2
 
@@ -48,5 +49,7 @@ float lookup_temp(float R);
 void init_bmp280(struct _BMP280_HandleTypedef *bmp280, int BMP280_ADRESS);
 void read_bmp280(struct _BMP280_HandleTypedef *bmp280, struct BMP280_data *BMP280_data_storage);
 void update_pid();
+void set_defaults();
+void write_to_display();
 
 #endif /* INC_TEMP_CONTROLLER_H_ */

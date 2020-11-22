@@ -28,9 +28,11 @@ Core/Src/temp_controller.o: ../Core/Src/temp_controller.c \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_sdadc.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h \
- ../Core/Inc/temp_controller.h ../Core/Inc/ssd1306.h ../Core/Inc/fonts.h \
+ ../Core/Inc/temp_controller.h ../Core/Inc/u8g2_callback.h \
+ D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/u8g2/csrc/u8g2.h \
+ D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/u8g2/csrc/u8x8.h \
  D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/bmp280/bmp280.h \
- ../Core/Inc/main.h
+ ../Core/Inc/main.h ../Core/Inc/float_to_string.h
 
 ../Core/Inc/temp_controller.h:
 
@@ -94,10 +96,14 @@ Core/Src/temp_controller.o: ../Core/Src/temp_controller.c \
 
 ../Core/Inc/temp_controller.h:
 
-../Core/Inc/ssd1306.h:
+../Core/Inc/u8g2_callback.h:
 
-../Core/Inc/fonts.h:
+D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/u8g2/csrc/u8g2.h:
+
+D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/u8g2/csrc/u8x8.h:
 
 D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/bmp280/bmp280.h:
 
 ../Core/Inc/main.h:
+
+../Core/Inc/float_to_string.h:

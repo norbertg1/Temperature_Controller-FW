@@ -28,8 +28,11 @@ Core/Src/stm32f3xx_it.o: ../Core/Src/stm32f3xx_it.c ../Core/Inc/main.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h \
  ../Core/Inc/temp_controller.h ../Core/Inc/main.h \
- C:/Users/Norbert/STM32CubeIDE/workspace_1.4.0/tempcontroller_cubemx/Drivers/bmp280/bmp280.h \
- ../Core/Inc/ssd1306.h ../Core/Inc/fonts.h ../Core/Inc/stm32f3xx_it.h
+ D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/bmp280/bmp280.h \
+ ../Core/Inc/float_to_string.h ../Core/Inc/u8g2_callback.h \
+ D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/u8g2/csrc/u8g2.h \
+ D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/u8g2/csrc/u8x8.h \
+ ../Core/Inc/stm32f3xx_it.h
 
 ../Core/Inc/main.h:
 
@@ -93,10 +96,14 @@ Core/Src/stm32f3xx_it.o: ../Core/Src/stm32f3xx_it.c ../Core/Inc/main.h \
 
 ../Core/Inc/main.h:
 
-C:/Users/Norbert/STM32CubeIDE/workspace_1.4.0/tempcontroller_cubemx/Drivers/bmp280/bmp280.h:
+D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/bmp280/bmp280.h:
 
-../Core/Inc/ssd1306.h:
+../Core/Inc/float_to_string.h:
 
-../Core/Inc/fonts.h:
+../Core/Inc/u8g2_callback.h:
+
+D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/u8g2/csrc/u8g2.h:
+
+D:/STM32_WORKDIR/Temperature_Controller-SW/Drivers/u8g2/csrc/u8x8.h:
 
 ../Core/Inc/stm32f3xx_it.h:
