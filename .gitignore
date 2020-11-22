@@ -16,4 +16,6 @@ EWARM/*
 *.elf
 *.ld
 *.bin
-.mxproject
+*.mxproject
+*.list
+*.map
