@@ -11,6 +11,7 @@ I2C_HandleTypeDef hi2c2;
 
 adc_data ntc;
 temperature_controller_data temp_controller;
+
 BMP280_data BMP280_sensor;
 struct _BMP280_HandleTypedef bmp280;
 float Vref=1.225, R0 = 10000;
@@ -41,11 +42,8 @@ void toggle_red_LED(){
 }
 
 void blink(){
-	while(1){
-		toggle_red_LED();
-		toggle_green_LED();
-		HAL_Delay(1000);
-	}
+	toggle_red_LED();
+	toggle_green_LED();
 }
 
 void start_pwm(TIM_HandleTypeDef *htim){
@@ -70,26 +68,70 @@ void set_defaults(){
 
 //Interrupt function called on button press
 void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
-	//HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
-	static int x=0,y=0,set_temp=0;
-	if (GPIO_Pin == PUSH_BUTTON_Pin) x++;
-	if (GPIO_Pin == ENCODER_PUSH_BUTTON_Pin)	y++;
+	HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
+	static uint32_t last_time;
+
+	if (GPIO_Pin == PUSH_BUTTON_Pin) {};
+	if (GPIO_Pin == ENCODER_PUSH_BUTTON_Pin)	{};
 	if (GPIO_Pin == ENCODER_A_Pin){
-		if(HAL_GPIO_ReadPin(ENCODER_A_GPIO_Port,ENCODER_A_Pin)	==	HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_B_Pin))	{
-			temp_controller.target_temp-=0.1;
-		}
-		else	{
-			temp_controller.target_temp+=0.1;
+		if(HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_B_Pin))	{
+			if((HAL_GetTick()-last_time) > ROTARY_SLOW)			temp_controller.target_temp-=0.1;
+			else if((HAL_GetTick()-last_time) > ROTARY_FAST)	temp_controller.target_temp-=1;
+			else												temp_controller.target_temp-=0.0;
+			last_time = HAL_GetTick();
 		}
 	}
-	write_to_display();
-	//HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+	if (GPIO_Pin == ENCODER_B_Pin){
+		if(HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_A_Pin))	{
+			if((HAL_GetTick()-last_time) > ROTARY_SLOW)			temp_controller.target_temp+=0.1;
+			else if((HAL_GetTick()-last_time) > ROTARY_FAST)	temp_controller.target_temp+=1;
+			else												temp_controller.target_temp+=0.0;
+			last_time = HAL_GetTick();
+		}
+	}
+	//Redraw_display();
+	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
-void write_to_display(){
-	char str[10],chars;
-	chars = ftoa(temp_controller.target_temp, str, 2);
+void Redraw_display(){
+	temp_controller.current_temp=-22.17;
+	temp_controller.voltage=1.74;
+	temp_controller.current=0.8;
+	temp_controller.power=temp_controller.voltage*temp_controller.current;
 
+	char current_temp_str[10], target_temp_str[10], voltage_str[10], current_str[10], power_str[10];
+	short current_temp_str_nr, target_temp_str_nr, voltage_str_nr, current_str_nr, power_str_nr;
+
+	current_temp_str_nr = ftoa(temp_controller.current_temp, current_temp_str, 2);
+	target_temp_str_nr = ftoa(temp_controller.target_temp, target_temp_str, 1);
+	voltage_str_nr = ftoa(temp_controller.voltage, voltage_str, 1);
+	current_str_nr = ftoa(temp_controller.current, current_str, 1);
+	power_str_nr = ftoa(temp_controller.power, power_str, 1);
+	u8g2_FirstPage(&u8g2);
+     do
+     {
+       u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
+       u8g2_DrawUTF8(&u8g2, -1, 14, "Curr.");
+       u8g2_DrawUTF8(&u8g2, 0, 26, "temp.:");
+       u8g2_SetFont(&u8g2, u8g2_font_logisoso20_tf);
+       if(temp_controller.current_temp<0) u8g2_DrawUTF8(&u8g2, 36, 20, "-");
+       u8g2_DrawUTF8(&u8g2, 48, 26, current_temp_str);
+       u8g2_DrawUTF8(&u8g2, 48+current_temp_str_nr*15, 26, "°C");
+       u8g2_SetFont(&u8g2, u8g2_font_helvR08_te     );
+       u8g2_DrawUTF8(&u8g2, 0, 46, "Set.");
+       u8g2_DrawUTF8(&u8g2, 0, 58, "temp.:");
+       u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf      );
+       if(temp_controller.target_temp<0) u8g2_DrawUTF8(&u8g2, 22, 52, "-");
+       u8g2_DrawUTF8(&u8g2, 30, 58, target_temp_str);
+       u8g2_DrawUTF8(&u8g2, 18+target_temp_str_nr*16, 58, "°C");
+       u8g2_SetFont(&u8g2, u8g2_font_helvR08_te     );
+       u8g2_DrawUTF8(&u8g2, 90, 46, "I:");
+       u8g2_DrawUTF8(&u8g2, 100, 46, current_str);
+       u8g2_DrawUTF8(&u8g2, 100+current_str_nr*8, 46, "A");
+       u8g2_DrawUTF8(&u8g2, 86, 58, "P:");
+       u8g2_DrawUTF8(&u8g2, 100, 58, power_str);
+       u8g2_DrawUTF8(&u8g2, 100+power_str_nr*8, 58, "W");
+     }while (u8g2_NextPage(&u8g2));
 }
 
 //Interrupt function called on completed ADC conversion

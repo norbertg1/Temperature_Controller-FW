@@ -14,7 +14,6 @@ Release/*
 
 # Object files
 *.o
-*.s
 *.su
 *.d
 *.ko
