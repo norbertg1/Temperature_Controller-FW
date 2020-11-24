@@ -1,3 +1,6 @@
 [submodule "Drivers/u8g2"]
 	path = Drivers/u8g2
 	url = https://github.com/olikraus/u8g2
+[submodule "Drivers/INA226"]
+	path = Drivers/INA226
+	url = https://github.com/norbertg1/AutoFox_INA226

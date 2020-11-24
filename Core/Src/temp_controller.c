@@ -93,14 +93,17 @@ void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
 	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
+
 void Redraw_display(){
-	temp_controller.current_temp=-22.17;
+	temp_controller.current_temp=temp_controller.target_temp;
 	temp_controller.voltage=1.74;
 	temp_controller.current=0.8;
 	temp_controller.power=temp_controller.voltage*temp_controller.current;
 
 	char current_temp_str[10], target_temp_str[10], voltage_str[10], current_str[10], power_str[10];
 	short current_temp_str_nr, target_temp_str_nr, voltage_str_nr, current_str_nr, power_str_nr;
+	short pwm_pixels = 40;
+	short pwm = 0;
 
 	current_temp_str_nr = ftoa(temp_controller.current_temp, current_temp_str, 2);
 	target_temp_str_nr = ftoa(temp_controller.target_temp, target_temp_str, 1);
@@ -110,27 +113,30 @@ void Redraw_display(){
 	u8g2_FirstPage(&u8g2);
      do
      {
-       u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
-       u8g2_DrawUTF8(&u8g2, -1, 14, "Curr.");
-       u8g2_DrawUTF8(&u8g2, 0, 26, "temp.:");
-       u8g2_SetFont(&u8g2, u8g2_font_logisoso20_tf);
-       if(temp_controller.current_temp<0) u8g2_DrawUTF8(&u8g2, 36, 20, "-");
-       u8g2_DrawUTF8(&u8g2, 48, 26, current_temp_str);
-       u8g2_DrawUTF8(&u8g2, 48+current_temp_str_nr*15, 26, "°C");
-       u8g2_SetFont(&u8g2, u8g2_font_helvR08_te     );
-       u8g2_DrawUTF8(&u8g2, 0, 46, "Set.");
-       u8g2_DrawUTF8(&u8g2, 0, 58, "temp.:");
-       u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf      );
-       if(temp_controller.target_temp<0) u8g2_DrawUTF8(&u8g2, 22, 52, "-");
-       u8g2_DrawUTF8(&u8g2, 30, 58, target_temp_str);
-       u8g2_DrawUTF8(&u8g2, 18+target_temp_str_nr*16, 58, "°C");
-       u8g2_SetFont(&u8g2, u8g2_font_helvR08_te     );
-       u8g2_DrawUTF8(&u8g2, 90, 46, "I:");
-       u8g2_DrawUTF8(&u8g2, 100, 46, current_str);
-       u8g2_DrawUTF8(&u8g2, 100+current_str_nr*8, 46, "A");
-       u8g2_DrawUTF8(&u8g2, 86, 58, "P:");
-       u8g2_DrawUTF8(&u8g2, 100, 58, power_str);
-       u8g2_DrawUTF8(&u8g2, 100+power_str_nr*8, 58, "W");
+    	 u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
+    	 u8g2_DrawUTF8(&u8g2, -1, 14, "Curr.");
+    	 u8g2_DrawUTF8(&u8g2, 0, 26, "temp.:");
+    	 u8g2_SetFont(&u8g2, u8g2_font_logisoso20_tf);
+    	 if(temp_controller.current_temp<0) u8g2_DrawUTF8(&u8g2, 36, 20, "-"); //"-" sign
+    	 u8g2_DrawUTF8(&u8g2, 48, 26, current_temp_str);
+    	 u8g2_DrawUTF8(&u8g2, 48+current_temp_str_nr*15, 26, "°C");
+    	 u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
+    	 u8g2_DrawUTF8(&u8g2, 0, 46, "Set.");
+    	 u8g2_DrawUTF8(&u8g2, 0, 58, "temp.:");
+    	 u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf);	//The display has limited space
+    	 if(temp_controller.target_temp<0) u8g2_DrawUTF8(&u8g2, 22, 52, "-");
+    	 u8g2_DrawUTF8(&u8g2, 30, 58, target_temp_str);
+    	 u8g2_DrawUTF8(&u8g2, 26+target_temp_str_nr*14, 58, "°C");
+    	 u8g2_SetFont(&u8g2, u8g2_font_helvR08_te     );
+    	 u8g2_DrawUTF8(&u8g2, 90, 46, "I:");
+    	 u8g2_DrawUTF8(&u8g2, 100, 46, current_str);
+    	 u8g2_DrawUTF8(&u8g2, 100+current_str_nr*8, 46, "A");
+    	 u8g2_DrawUTF8(&u8g2, 86, 58, "P:");
+    	 u8g2_DrawUTF8(&u8g2, 100, 58, power_str);
+    	 u8g2_DrawUTF8(&u8g2, 100+power_str_nr*8, 58, "W");
+    	 u8g2_SetDrawColor(&u8g2,2);
+    	 u8g2_DrawHLine(&u8g2, 78, 33, (pwm/100.0)*pwm_pixels);
+    	 u8g2_DrawHLine(&u8g2, 78, 32, (pwm/100.0)*pwm_pixels);
      }while (u8g2_NextPage(&u8g2));
 }
 
