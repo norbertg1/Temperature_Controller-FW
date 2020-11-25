@@ -47,7 +47,7 @@ SDADC_HandleTypeDef hsdadc1;
 DMA_HandleTypeDef hdma_sdadc1;
 
 TIM_HandleTypeDef htim2;
-AutoFox_INA226 INA226_1,INA226_2;
+INA226 INA226_1,INA226_2;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -108,10 +108,10 @@ int main(void)
   HAL_SDADC_Start_DMA(&hsdadc1, (uint32_t*)adc_buf, ADC_BUF_LEN);
   //-----INA sensors setup ----
   status result1,result2;
-  //AutoFox_INA226_Constructor(&INA226_1, Adress_0);
-  //AutoFox_INA226_Constructor(&INA226_2, Adress_1);
-  result1 = AutoFox_INA226_Init(&INA226_1, &hi2c2, 0b01000000,0.033,2);	//1.5A max
-  result2 = AutoFox_INA226_Init(&INA226_2, &hi2c2, 0b01000001,0.033,6);	//5A max
+  //INA226_Constructor(&INA226_1, Adress_0);
+  //INA226_Constructor(&INA226_2, Adress_1);
+  result1 = INA226_Init(&INA226_1, &hi2c2, INA226_ADRESS_0,0.033,2);	//1.5A max
+  result2 = INA226_Init(&INA226_2, &hi2c2, INA226_ADRESS_1,0.033,6);	//5A max
   //-----OLED display setup----
   u8g2_Setup_ssd1306_128x64_noname_1(&u8g2, U8G2_R0, u8x8_byte_stm32_hw_i2c, u8x8_stm32_gpio_and_delay);
   u8g2_InitDisplay(&u8g2);
@@ -128,9 +128,9 @@ int main(void)
     /* USER CODE END WHILE */
 	  Redraw_display();
 	  blink();
-	  a1 = AutoFox_INA226_GetBusVoltage_uV(&INA226_1);
-	  a2 = AutoFox_INA226_GetCurrent_uA(&INA226_1);
-	  a3 = AutoFox_INA226_GetPower_uW(&INA226_1);
+	  a1 = INA226_GetBusVoltage_uV(&INA226_1);
+	  a2 = INA226_GetCurrent_uA(&INA226_1);
+	  a3 = INA226_GetPower_uW(&INA226_1);
 	  HAL_Delay(100);
     /* USER CODE BEGIN 3 */
   }

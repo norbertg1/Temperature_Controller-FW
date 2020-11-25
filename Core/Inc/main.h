@@ -59,7 +59,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 extern I2C_HandleTypeDef hi2c1;
-extern AutoFox_INA226 INA226_1,INA226_2;
+extern INA226 INA226_1,INA226_2;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
