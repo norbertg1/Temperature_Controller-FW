@@ -141,7 +141,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim6); 	//100miliseconds interrupt
   HAL_TIM_Base_Start_IT(&htim7); 	//10second interrupt
   //-----OLED display setup----
-  u8g2_Setup_ssd1306_128x64_noname_1(&u8g2, U8G2_R0, u8x8_byte_stm32_hw_i2c, u8x8_stm32_gpio_and_delay);
+  u8g2_Setup_ssd1306_128x64_noname_f(&u8g2, U8G2_R0, u8x8_byte_stm32_hw_i2c, u8x8_stm32_gpio_and_delay);
   u8g2_InitDisplay(&u8g2);
   u8g2_SetPowerSave(&u8g2, 0);
   set_defaults();
@@ -157,13 +157,13 @@ int main(void)
 		  INA226_MeasureAll(&INA226_1);
 		  INA226_MeasureAll(&INA226_2);
 	  }
-	  if(flag_100ms){
-		  flag_100ms=0;
+	  if(flag_200ms){
+		  flag_200ms=0;
 		  blink();
 		  t1 = HAL_GetTick();
 		  Redraw_display();
 		  delta_t1 = HAL_GetTick()-t1;
-		  HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
+		  //HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
 	  	  }
 	  HAL_Delay(1);
   }

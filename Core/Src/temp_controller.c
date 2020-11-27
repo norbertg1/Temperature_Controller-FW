@@ -166,7 +166,7 @@ void Redraw_display(){
 		u8g2_DrawHLine(&u8g2, 78, 33, (pwm/100.0)*pwm_pixels);
 		u8g2_DrawHLine(&u8g2, 78, 32, (pwm/100.0)*pwm_pixels);
 		u8g2_SendBuffer(&u8g2);
-		 break;
+		break;
 	case 2:
 		u8g2_FirstPage(&u8g2);
 		do

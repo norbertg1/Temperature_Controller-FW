@@ -42,7 +42,7 @@ typedef struct BMP280_data{
 	float humidity;	//BMP280 not support it
 }BMP280_data;
 
-extern short flag_10ms, flag_100ms, flag_1s, flag_10s;
+extern short flag_10ms, flag_200ms, flag_1s, flag_10s;
 extern short cnt_adc;
 
 extern void calc_adc_values();
