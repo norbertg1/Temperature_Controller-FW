@@ -60,6 +60,8 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 extern I2C_HandleTypeDef hi2c1;
 extern INA226 INA226_1,INA226_2;
+extern SDADC_HandleTypeDef hsdadc1;
+extern SDADC_HandleTypeDef hsdadc2;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -72,8 +74,6 @@ extern INA226 INA226_1,INA226_2;
 #define ENCODER_B_Pin GPIO_PIN_15
 #define ENCODER_B_GPIO_Port GPIOC
 #define ENCODER_B_EXTI_IRQn EXTI15_10_IRQn
-#define PWM1_Pin GPIO_PIN_0
-#define PWM1_GPIO_Port GPIOA
 #define PWM2_Pin GPIO_PIN_1
 #define PWM2_GPIO_Port GPIOA
 #define EN2_Pin GPIO_PIN_2
@@ -88,10 +88,12 @@ extern INA226 INA226_1,INA226_2;
 #define ADC_RES__GPIO_Port GPIOB
 #define ADC_RES_B1_Pin GPIO_PIN_1
 #define ADC_RES_B1_GPIO_Port GPIOB
-#define ADC_NTC__Pin GPIO_PIN_8
-#define ADC_NTC__GPIO_Port GPIOE
-#define ADC_NTC_E9_Pin GPIO_PIN_9
-#define ADC_NTC_E9_GPIO_Port GPIOE
+#define NTC__Pin GPIO_PIN_8
+#define NTC__GPIO_Port GPIOE
+#define NTC_E9_Pin GPIO_PIN_9
+#define NTC_E9_GPIO_Port GPIOE
+#define PWM1_Pin GPIO_PIN_15
+#define PWM1_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

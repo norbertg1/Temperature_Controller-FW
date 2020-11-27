@@ -12,9 +12,11 @@
 #include "bmp280.h"
 #include "float_to_string.h"
 
-#define ADC_BUF_LEN 2
-#define ROTARY_FAST        20 // [ms] rotary speed fast
-#define ROTARY_SLOW       200 // [ms] rotary speed slow
+#define ADC_BUF_LEN				2
+#define ROTARY_FAST				20 // [ms] rotary speed fast
+#define ROTARY_SLOW				200 // [ms] rotary speed slow
+#define MENU_MAX				2
+#define ADC_AVARAGE				100
 uint16_t adc_buf[ADC_BUF_LEN];
 
 //UPDATED BY ADC DMA
@@ -31,6 +33,7 @@ typedef struct    {
 	float voltage;
 	float current;
 	float power;
+	short menu;
 } temperature_controller_data;
 
 typedef struct BMP280_data{
@@ -39,6 +42,10 @@ typedef struct BMP280_data{
 	float humidity;	//BMP280 not support it
 }BMP280_data;
 
+extern short flag_10ms, flag_100ms, flag_1s, flag_10s;
+extern short cnt_adc;
+
+extern void calc_adc_values();
 void turn_on_green_LED();
 void turn_off_green_LED();
 void toggle_green_LED();
@@ -51,10 +58,14 @@ void set_duty_cycle(int);
 void HAL_GPIO_EXTI_Callback (uint16_t );
 void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef* hsdadc);
 float lookup_temp(float R);
-void init_bmp280(struct _BMP280_HandleTypedef *bmp280, int BMP280_ADRESS);
-void read_bmp280(struct _BMP280_HandleTypedef *bmp280, struct BMP280_data *BMP280_data_storage);
+void init_bmp280(struct _BMP280_HandleTypedef *, int );
+void read_bmp280(struct _BMP280_HandleTypedef *, struct BMP280_data *);
 void update_pid();
 void set_defaults();
 void Redraw_display();
+void TIM3_callback();
+void TIM4_callback();
+void TIM6_callback();
+void TIM7_callback();
 
 #endif /* INC_TEMP_CONTROLLER_H_ */

@@ -51,5 +51,4 @@ uint8_t u8x8_byte_stm32_hw_i2c(u8x8_t *u8g2, uint8_t msg, uint8_t arg_int, void 
 		default:
 			return 0;
 	}
-	return 1;
-}
+	return 1;}
