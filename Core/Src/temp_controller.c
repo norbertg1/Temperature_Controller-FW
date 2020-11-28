@@ -58,19 +58,37 @@ void set_duty_cycle(int dc){
 }
 
 void update_pid(){
+	static uint32_t t;
+	float error, prev_error, d_error, delta_t, pid_out;
+	temp_controller.pid.delta_t = (HAL_GetTick()-t)/1000.0;
+	prev_error = temp_controller.pid.error;
+	error = temp_controller.target_temp - temp_controller.current_temp;
+	d_error = prev_error - temp_controller.pid.error;
+	pid_out = temp_controller.pid.Kp * error
+			+ temp_controller.pid.Kd * d_error * delta_t
+			+ temp_controller.pid.Ki * temp_controller.pid.errorSum;
+	temp_controller.pid.errorSum += error;
 	set_duty_cycle(50);
+	t=HAL_GetTick();
 }
 
 void set_defaults(){
 	HAL_Delay(500);
 	temp_controller.target_temp = 0;
-	temp_controller.menu = 1;
+	temp_controller.menu = 2;
+	temp_controller.pid.errorSum = 0;
+	temp_controller.pid.Kp=0.1;
+	temp_controller.pid.Kd=0.1;
+	temp_controller.pid.Ki=0.1;
 	Redraw_display();
 }
 
 float *get_rotating_menu_item(temperature_controller_data* controller){
 	if(controller->menu==1)	return	&controller->target_temp;
-	if(controller->menu==2)	return	0;
+	if(controller->menu==2)	return	&controller->pid.Kp;
+	if(controller->menu==3)	return	&controller->pid.Kd;
+	if(controller->menu==4)	return	&controller->pid.Ki;
+
 }
 
 void rotate(float value, float* ptr){
@@ -119,7 +137,6 @@ void Redraw_display(){
 	switch(temp_controller.menu)
 	{
 	case 1:
-		temp_controller.current_temp	=	ntc.temperature;
 		if(INA226_1.Result.Current_uA 	>= 	INA226_2.Result.Current_uA) {
 			temp_controller.current	= 	INA226_1.Result.Current_uA/10E6;
 			temp_controller.power 	= 	INA226_1.Result.Power_uW /10E6;
@@ -167,23 +184,46 @@ void Redraw_display(){
 		u8g2_DrawHLine(&u8g2, 78, 32, (pwm/100.0)*pwm_pixels);
 		u8g2_SendBuffer(&u8g2);
 		break;
+
 	case 2:
-		u8g2_FirstPage(&u8g2);
-		do
-		{
-		u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
-		u8g2_DrawUTF8(&u8g2, -1, 14, "MENU 2");
-		}while (u8g2_NextPage(&u8g2));
+		menu234();
+		u8g2_DrawUTF8(&u8g2, 0, 14, "*");
+		u8g2_SendBuffer(&u8g2);
+		break;
+	case 3:
+		menu234();
+		u8g2_DrawUTF8(&u8g2, 0, 28, "*");
+		u8g2_SendBuffer(&u8g2);
+		break;
+	case 4:
+		menu234();
+		u8g2_DrawUTF8(&u8g2, 0, 42, "*");
+		u8g2_SendBuffer(&u8g2);
 		break;
 	}
 }
 
+void menu234(){
+	//Case Menu = 2,3,4
+	char Kp_str[10], Kd_str[10], Ki_str[10];
+	ftoa(temp_controller.pid.Kp, Kp_str, 3);
+	ftoa(temp_controller.pid.Kd, Kd_str, 3);
+	ftoa(temp_controller.pid.Ki, Ki_str, 3);
+	u8g2_ClearBuffer(&u8g2);
+	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
+	u8g2_DrawUTF8(&u8g2, 10, 14, "Kp: ");
+	u8g2_DrawUTF8(&u8g2, 42, 14, Kp_str);
+	u8g2_DrawUTF8(&u8g2, 10, 28, "Kd: ");
+	u8g2_DrawUTF8(&u8g2, 42, 28, Kd_str);
+	u8g2_DrawUTF8(&u8g2, 10, 42, "Ki: ");
+	u8g2_DrawUTF8(&u8g2, 42, 42, Ki_str);
+}
 
 void TIM4_callback(){ //10ms interrupt, 100Hz
 	flag_10ms=1;
 }
 
-void TIM6_callback(){ //150ms interrupt
+void TIM6_callback(){ //200ms interrupt
 	//HAL_NVIC_DisableIRQ(TIM6_DAC1_IRQn);
 	flag_200ms=1;
 }
@@ -209,15 +249,16 @@ void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef* hsdadc){
 }
 
 void calc_adc_values(){
-	adc[0]				=		adc[0]/cnt_adc;
-	adc[1]				=		adc[1]/cnt_adc;
-	ntc.current			=		((Vref/32767.0) *  adc[0])/10000;
-	ntc.voltage			=		(Vref/32767.0) *  adc[1];
-	ntc.resistance		=		ntc.voltage/ntc.current;
-	ntc.temperature		=		lookup_temp(ntc.resistance);
-	cnt_adc				=		0;
-	adc[0]				=		0;
-	adc[1]				=		0;
+	adc[0]							=		adc[0]/cnt_adc;
+	adc[1]							=		adc[1]/cnt_adc;
+	ntc.current						=		((Vref/32767.0) *  adc[0])/10000;
+	ntc.voltage						=		(Vref/32767.0) *  adc[1];
+	ntc.resistance					=		ntc.voltage/ntc.current;
+	ntc.temperature					=		lookup_temp(ntc.resistance);
+	cnt_adc							=		0;
+	adc[0]							=		0;
+	adc[1]							=		0;
+	temp_controller.current_temp	=		ntc.temperature;
 }
 
 //gives back the temperature based on NTC resistance value, lookup table needed!

@@ -149,6 +149,7 @@ int main(void)
   while(1){
 	  if(flag_10ms){
 		  flag_10ms=0;
+		  update_pid();
 		  HAL_SDADC_Start_DMA(&hsdadc1, (uint32_t*) adc_buf, 1);
 		  HAL_SDADC_Start_DMA(&hsdadc2, (uint32_t*) &adc_buf[1], 1);
 	  }
@@ -163,6 +164,9 @@ int main(void)
 		  t1 = HAL_GetTick();
 		  Redraw_display();
 		  delta_t1 = HAL_GetTick()-t1;
+		  if(delta_t1){
+			  flag_200ms=0;
+		  }
 		  //HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
 	  	  }
 	  HAL_Delay(1);
@@ -760,7 +764,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : ENCODER_PUSH_BUTTON_Pin */
   GPIO_InitStruct.Pin = ENCODER_PUSH_BUTTON_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ENCODER_PUSH_BUTTON_GPIO_Port, &GPIO_InitStruct);
 

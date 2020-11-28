@@ -15,7 +15,7 @@
 #define ADC_BUF_LEN				2
 #define ROTARY_FAST				20 // [ms] rotary speed fast
 #define ROTARY_SLOW				200 // [ms] rotary speed slow
-#define MENU_MAX				2
+#define MENU_MAX				4
 #define ADC_AVARAGE				100
 uint16_t adc_buf[ADC_BUF_LEN];
 
@@ -27,6 +27,15 @@ typedef struct    {
 	float temperature;
 }adc_data;
 
+typedef struct PID{
+	float Kp;
+	float Kd;
+	float Ki;
+	float error;
+	float errorSum;
+	float delta_t;
+}PID;
+
 typedef struct    {
 	float target_temp;
 	float current_temp;
@@ -34,6 +43,7 @@ typedef struct    {
 	float current;
 	float power;
 	short menu;
+	PID	  pid;
 } temperature_controller_data;
 
 typedef struct BMP280_data{
@@ -63,6 +73,7 @@ void read_bmp280(struct _BMP280_HandleTypedef *, struct BMP280_data *);
 void update_pid();
 void set_defaults();
 void Redraw_display();
+void menu234();
 void TIM3_callback();
 void TIM4_callback();
 void TIM6_callback();
