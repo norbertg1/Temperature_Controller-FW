@@ -15,9 +15,10 @@
 #define ADC_BUF_LEN				2
 #define ROTARY_FAST				20 // [ms] rotary speed fast
 #define ROTARY_SLOW				200 // [ms] rotary speed slow
-#define MENU_MAX				4
+#define MENU_MAX				5
 #define ADC_AVARAGE				100
 #define LONG_PRESS				5000
+#define	END						0
 #define RIGHT					3
 #define	LEFT					4
 
@@ -58,6 +59,7 @@ typedef struct BMP280_data{
 
 extern short flag_10ms, flag_200ms, flag_1s, flag_10s;
 extern short cnt_adc;
+extern temperature_controller_data temp_controller;
 
 extern void calc_adc_values();
 void turn_on_green_LED();

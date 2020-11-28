@@ -114,17 +114,18 @@ void snake_game_control(uint16_t GPIO_Pin){
 	case ENCODER_PUSH_BUTTON_Pin:
 		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, LONG_PRESS)){
 			temp_controller.menu = 1;
+			snake_button(END); //END
 			return;
 		}
 	case ENCODER_A_Pin:
 		if(HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_B_Pin) && (HAL_GetTick()-last_time) > ROTARY_SLOW){
 			last_time = HAL_GetTick();
-			//set_control(RIGHT);
+			snake_button(RIGHT);
 		}
 	case ENCODER_B_Pin:
 		if(HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_A_Pin) && (HAL_GetTick()-last_time) > ROTARY_SLOW)	{
 			last_time = HAL_GetTick();
-			//set_control(LEFT);
+			snake_button(LEFT);
 		}
 	}
 }

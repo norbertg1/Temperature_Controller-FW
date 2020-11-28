@@ -19,7 +19,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -145,7 +144,6 @@ int main(void)
   u8g2_InitDisplay(&u8g2);
   u8g2_SetPowerSave(&u8g2, 0);
   set_defaults();
-
   unsigned long t1,delta_t1;
   while(1){
 	  if(flag_10ms){
@@ -170,6 +168,7 @@ int main(void)
 		  }
 		  //HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
 	  	  }
+	  if(temp_controller.menu == 5)	snake_start(&u8g2);
 	  HAL_Delay(1);
   }
 
