@@ -145,6 +145,7 @@ int main(void)
   u8g2_InitDisplay(&u8g2);
   u8g2_SetPowerSave(&u8g2, 0);
   set_defaults();
+
   unsigned long t1,delta_t1;
   while(1){
 	  if(flag_10ms){

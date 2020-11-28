@@ -99,14 +99,52 @@ float round_n(float number, int dec){
 	return roundf((10*dec) * number) / (10*dec);
 }
 
+short is_long_pressed(GPIO_TypeDef* gpio_port, uint16_t button_pin, uint16_t long_press){
+	int long_press_time = HAL_GetTick();
+	while(HAL_GPIO_ReadPin(gpio_port, button_pin)){
+		HAL_Delay(1);
+		if((HAL_GetTick()-long_press_time) > long_press)	return 1;
+	}
+	return 0;
+}
+
+void snake_game_control(uint16_t GPIO_Pin){
+	static uint32_t last_time;
+	switch (GPIO_Pin){
+	case ENCODER_PUSH_BUTTON_Pin:
+		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, LONG_PRESS)){
+			temp_controller.menu = 1;
+			return;
+		}
+	case ENCODER_A_Pin:
+		if(HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_B_Pin) && (HAL_GetTick()-last_time) > ROTARY_SLOW){
+			last_time = HAL_GetTick();
+			//set_control(RIGHT);
+		}
+	case ENCODER_B_Pin:
+		if(HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_A_Pin) && (HAL_GetTick()-last_time) > ROTARY_SLOW)	{
+			last_time = HAL_GetTick();
+			//set_control(LEFT);
+		}
+	}
+}
+
 //Interrupt function called on button press
 void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
 	HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
+	if(temp_controller.menu == 5) {					//snake game
+		snake_game_control(GPIO_Pin);
+		HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+		return;
+	}
 	static uint32_t last_time;
-	//short* ptr;
 	float* ptr=get_rotating_menu_item(&temp_controller);
 	switch(GPIO_Pin){
 	case ENCODER_PUSH_BUTTON_Pin:
+		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, LONG_PRESS)){
+			temp_controller.menu = 5;
+			return;
+		}
 		temp_controller.menu++;
 		if(temp_controller.menu > MENU_MAX) temp_controller.menu=1;
 		break;

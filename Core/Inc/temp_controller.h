@@ -17,6 +17,10 @@
 #define ROTARY_SLOW				200 // [ms] rotary speed slow
 #define MENU_MAX				4
 #define ADC_AVARAGE				100
+#define LONG_PRESS				5000
+#define RIGHT					3
+#define	LEFT					4
+
 uint16_t adc_buf[ADC_BUF_LEN];
 
 //UPDATED BY ADC DMA

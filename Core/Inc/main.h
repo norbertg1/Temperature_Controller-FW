@@ -35,6 +35,7 @@ extern "C" {
 #include "temp_controller.h"
 #include "u8g2_callback.h"
 #include "INA226.h"
+#include "snake_start.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
