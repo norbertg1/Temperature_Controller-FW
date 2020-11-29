@@ -5,5 +5,5 @@
 	path = Drivers/INA226
 	url = https://github.com/norbertg1/AutoFox_INA226
 [submodule "/Users/Norbert/Temperature_Controller-SW/Core/Src/snake_game"]
-	path = /Users/Norbert/Temperature_Controller-SW/Core/Src/snake_game
+	path = Core/Src/snake_game
 	url = git@github.com:norbertg1/Snake-game.git
