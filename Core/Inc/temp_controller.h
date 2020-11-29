@@ -18,6 +18,7 @@
 #define MENU_MAX				5
 #define ADC_AVARAGE				100
 #define LONG_PRESS				5000
+#define SHORT_PRESS				100
 #define	END						0
 #define RIGHT					3
 #define	LEFT					4

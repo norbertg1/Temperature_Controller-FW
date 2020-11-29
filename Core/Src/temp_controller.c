@@ -75,7 +75,7 @@ void update_pid(){
 void set_defaults(){
 	HAL_Delay(500);
 	temp_controller.target_temp = 0;
-	temp_controller.menu = 2;
+	temp_controller.menu = 1;
 	temp_controller.pid.errorSum = 0;
 	temp_controller.pid.Kp=0.1;
 	temp_controller.pid.Kd=0.1;
@@ -99,11 +99,13 @@ float round_n(float number, int dec){
 	return roundf((10*dec) * number) / (10*dec);
 }
 
-short is_long_pressed(GPIO_TypeDef* gpio_port, uint16_t button_pin, uint16_t long_press){
-	int long_press_time = HAL_GetTick();
-	while(HAL_GPIO_ReadPin(gpio_port, button_pin)){
-		HAL_Delay(1);
-		if((HAL_GetTick()-long_press_time) > long_press)	return 1;
+short is_long_pressed(GPIO_TypeDef* gpio_port, uint16_t button_pin, short polarity, uint16_t long_press){
+	//In interrupt we cannot use HAL counter
+	DWT->CTRL |= 1 ; // enable the counter
+	DWT->CYCCNT = 0; // reset the counter
+	while(HAL_GPIO_ReadPin(gpio_port, button_pin) == polarity){
+		__NOP();
+		if(((DWT->CYCCNT/(SystemCoreClock/1000))> long_press)) return 1;
 	}
 	return 0;
 }
@@ -112,7 +114,7 @@ void snake_game_control(uint16_t GPIO_Pin){
 	static uint32_t last_time;
 	switch (GPIO_Pin){
 	case ENCODER_PUSH_BUTTON_Pin:
-		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, LONG_PRESS)){
+		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_PRESS)){
 			temp_controller.menu = 1;
 			snake_button(END); //END
 			return;
@@ -142,12 +144,13 @@ void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
 	float* ptr=get_rotating_menu_item(&temp_controller);
 	switch(GPIO_Pin){
 	case ENCODER_PUSH_BUTTON_Pin:
-		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, LONG_PRESS)){
+		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_PRESS)){
 			temp_controller.menu = 5;
 			return;
 		}
-		temp_controller.menu++;
-		if(temp_controller.menu > MENU_MAX) temp_controller.menu=1;
+		if((HAL_GetTick()-last_time) > SHORT_PRESS)  temp_controller.menu++;
+		if(temp_controller.menu > MENU_MAX-1) temp_controller.menu=1;
+		last_time = HAL_GetTick();
 		break;
 	case ENCODER_A_Pin:
 		if(HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_B_Pin))	{

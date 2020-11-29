@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -146,6 +147,7 @@ int main(void)
   set_defaults();
   unsigned long t1,delta_t1;
   while(1){
+
 	  if(flag_10ms){
 		  flag_10ms=0;
 		  update_pid();
@@ -163,9 +165,6 @@ int main(void)
 		  t1 = HAL_GetTick();
 		  Redraw_display();
 		  delta_t1 = HAL_GetTick()-t1;
-		  if(delta_t1){
-			  flag_200ms=0;
-		  }
 		  //HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
 	  	  }
 	  if(temp_controller.menu == 5)	snake_start(&u8g2);
@@ -764,7 +763,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : ENCODER_PUSH_BUTTON_Pin */
   GPIO_InitStruct.Pin = ENCODER_PUSH_BUTTON_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ENCODER_PUSH_BUTTON_GPIO_Port, &GPIO_InitStruct);
 
