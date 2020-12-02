@@ -73,13 +73,15 @@ void update_pid(){
 }
 
 void set_defaults(){
-	HAL_Delay(500);
+	HAL_Delay(100);
+	flash_SetSectorAddrs(0, (uint32_t)0x08000000); // Sector 1 Addr.
+	flash_ReadN(0,&temp_controller,2,DATA_TYPE_32);
 	temp_controller.target_temp = 0;
-	temp_controller.menu = 1;
+	temp_controller.menu = 2;
 	temp_controller.pid.errorSum = 0;
-	temp_controller.pid.Kp=0.1;
+	/*temp_controller.pid.Kp=0.1;
 	temp_controller.pid.Kd=0.1;
-	temp_controller.pid.Ki=0.1;
+	temp_controller.pid.Ki=0.1;*/
 	Redraw_display();
 }
 
@@ -166,6 +168,9 @@ void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
 			else if((HAL_GetTick()-last_time) > ROTARY_FAST)	rotate(+1,ptr);
 			else												break;
 			last_time = HAL_GetTick();
+			int l = sizeof(temp_controller);
+			int k = sizeof(temperature_controller_data);
+			flash_WriteN(0, &temp_controller,2,DATA_TYPE_32);
 		}
 		break;
 	}

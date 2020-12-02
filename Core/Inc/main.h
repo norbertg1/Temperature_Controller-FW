@@ -36,6 +36,7 @@ extern "C" {
 #include "u8g2_callback.h"
 #include "INA226.h"
 #include "snake_start.h"
+#include <flash.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
