@@ -19,67 +19,85 @@ Description:
 
 #include "flash.h"
 
+#define FLASH_USER_START_ADDR   ADDR_FLASH_PAGE_24   /* Start @ of user Flash area */
+#define FLASH_USER_END_ADDR     ADDR_FLASH_PAGE_25   /* End @ of user Flash area */
+
 //Private variables
 //1. sector start address
 static uint32_t MY_SectorAddrs;
-static uint8_t MY_SectorNum;
+
+uint32_t PageError = 0;
+
+static FLASH_EraseInitTypeDef EraseInitStruct;
+
 
 //functions definitions
 //1. Erase Sector
 static void flash_EraseSector(void)
 {
+	HAL_StatusTypeDef ret;
+
 	HAL_FLASH_Unlock();
 	//Erase the required Flash sector
-	//HAL_FLASHEx_Erase(MY_SectorNum, FLASH_VOLTAGE_RANGE_3);
+	EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+	EraseInitStruct.PageAddress = FLASH_USER_START_ADDR;
+	EraseInitStruct.NbPages     = (FLASH_USER_END_ADDR - FLASH_USER_START_ADDR) / FLASH_PAGE_SIZE;
+	ret = HAL_FLASHEx_Erase(&EraseInitStruct, &PageError);
 	HAL_FLASH_Lock();
 }
 
-//2. Set Sector Adress
-void flash_SetSectorAddrs(uint8_t sector, uint32_t addrs)
-{
-	MY_SectorNum = sector;
-	MY_SectorAddrs = addrs;
-}
 
 //3. Write Flash
 void flash_WriteN(uint32_t idx, void *wrBuf, uint32_t Nsize, DataTypeDef dataType)
 {
-	uint32_t flashAddress = MY_SectorAddrs + idx;
+	uint32_t flashAddress = ADDR_FLASH_PAGE_16 + idx;
+	HAL_StatusTypeDef ret;
 
 	//Erase sector before write
-	//MY_FLASH_EraseSector();
+	flash_EraseSector();
 
 	//Unlock Flash
-	HAL_FLASH_Unlock();
+	ret = HAL_FLASH_Unlock();
 	//Write to Flash
 	switch(dataType)
 	{
 		case DATA_TYPE_16:
 				for(uint32_t i=0; i<Nsize; i++)
 				{
-					HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, flashAddress , ((uint16_t *)wrBuf)[i]);
+					ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, flashAddress , ((uint16_t *)wrBuf)[i]);
 					flashAddress++;
+				}
+				if(ret != HAL_OK){
+					ret = HAL_FLASH_GetError();
 				}
 			break;
 
 		case DATA_TYPE_32:
 				for(uint32_t i=0; i<Nsize; i++)
 				{
-					HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, flashAddress , ((uint32_t *)wrBuf)[i]);
+					ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, flashAddress , ((uint32_t *)wrBuf)[i]);
 					flashAddress+=2;
+				}
+				if(ret != HAL_OK){
+					ret = HAL_FLASH_GetError();
 				}
 			break;
 
 		case DATA_TYPE_64:
 				for(uint32_t i=0; i<Nsize; i++)
 				{
-					HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, flashAddress , ((uint64_t *)wrBuf)[i]);
+					ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, flashAddress , ((uint64_t *)wrBuf)[i]);
 					flashAddress+=4;
+				}
+				if(ret != HAL_OK){
+					ret = HAL_FLASH_GetError();
 				}
 			break;
 	}
+
 	//Lock the Flash space
-	HAL_FLASH_Lock();
+	ret = HAL_FLASH_Lock();
+
 }
 //4. Read Flash
 void flash_ReadN(uint32_t idx, void *rdBuf, uint32_t Nsize, DataTypeDef dataType)

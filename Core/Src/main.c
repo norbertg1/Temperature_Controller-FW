@@ -158,6 +158,10 @@ int main(void)
 		  flag_1s=0;
 		  INA226_MeasureAll(&INA226_1);
 		  INA226_MeasureAll(&INA226_2);
+		  __disable_irq();
+		  flash_WriteN(0, &temp_controller,1,DATA_TYPE_64);
+		  __enable_irq();
+		  HAL_Delay(10);
 	  }
 	  if(flag_200ms){
 		  flag_200ms=0;

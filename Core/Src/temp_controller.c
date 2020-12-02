@@ -74,8 +74,7 @@ void update_pid(){
 
 void set_defaults(){
 	HAL_Delay(100);
-	flash_SetSectorAddrs(0, (uint32_t)0x08000000); // Sector 1 Addr.
-	flash_ReadN(0,&temp_controller,2,DATA_TYPE_32);
+	flash_ReadN(0,&temp_controller,1,DATA_TYPE_64);
 	temp_controller.target_temp = 0;
 	temp_controller.menu = 2;
 	temp_controller.pid.errorSum = 0;
@@ -170,7 +169,6 @@ void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
 			last_time = HAL_GetTick();
 			int l = sizeof(temp_controller);
 			int k = sizeof(temperature_controller_data);
-			flash_WriteN(0, &temp_controller,2,DATA_TYPE_32);
 		}
 		break;
 	}
@@ -252,10 +250,11 @@ void Redraw_display(){
 
 void menu234(){
 	//Case Menu = 2,3,4
-	char Kp_str[10], Kd_str[10], Ki_str[10];
+	char Kp_str[10], Kd_str[10], Ki_str[10], Ki_t[10];
 	ftoa(temp_controller.pid.Kp, Kp_str, 3);
 	ftoa(temp_controller.pid.Kd, Kd_str, 3);
 	ftoa(temp_controller.pid.Ki, Ki_str, 3);
+	ftoa(temp_controller.pid.delta_t*1000, Ki_t, 3);
 	u8g2_ClearBuffer(&u8g2);
 	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
 	u8g2_DrawUTF8(&u8g2, 10, 14, "Kp: ");
@@ -264,6 +263,9 @@ void menu234(){
 	u8g2_DrawUTF8(&u8g2, 42, 28, Kd_str);
 	u8g2_DrawUTF8(&u8g2, 10, 42, "Ki: ");
 	u8g2_DrawUTF8(&u8g2, 42, 42, Ki_str);
+	u8g2_DrawUTF8(&u8g2, 10, 56, "∆t: ");
+	u8g2_DrawUTF8(&u8g2, 42, 56, Ki_t);
+	u8g2_DrawUTF8(&u8g2, 90, 56, "ms");
 }
 
 void TIM4_callback(){ //10ms interrupt, 100Hz
