@@ -55,7 +55,7 @@ int ftoa(float n, char* res, int afterpoint)
   
     // Extract floating part 
     float fpart = n - (float)ipart; 
-  
+    float fff = pow(10,(float)afterpoint);
     // convert integer part to string 
     int i = intToStr(ipart, res + sign, 0);
   
@@ -66,7 +66,8 @@ int ftoa(float n, char* res, int afterpoint)
         // Get the value of fraction part upto given no. 
         // of points after dot. The third parameter  
         // is needed to handle cases like 233.007 
-        fpart = fpart * pow(10, afterpoint); 
+        float ff = pow(10, (float)afterpoint);
+        fpart = fpart * ff;
   
         intToStr((int)fpart, res + i + 1 + sign, afterpoint);
     }

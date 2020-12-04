@@ -146,6 +146,12 @@ int main(void)
   u8g2_SetPowerSave(&u8g2, 0);
   set_defaults();
   unsigned long t1,delta_t1;
+  HAL_Delay(1000);
+  //temp_controller.pid.Kp = 10;
+  __disable_irq();
+  flash_WriteN(0, &temp_controller.current,144,DATA_TYPE_64);
+  __enable_irq();
+
   while(1){
 
 	  if(flag_10ms){
@@ -158,10 +164,18 @@ int main(void)
 		  flag_1s=0;
 		  INA226_MeasureAll(&INA226_1);
 		  INA226_MeasureAll(&INA226_2);
-		  __disable_irq();
-		  flash_WriteN(0, &temp_controller,1,DATA_TYPE_64);
-		  __enable_irq();
-		  HAL_Delay(10);
+		  static int cnt;
+		  cnt++;
+		  if(cnt == 10){
+			  __disable_irq();
+			  flash_WriteN(0, &temp_controller.current,10,DATA_TYPE_32);
+			  __enable_irq();
+		  }
+		  if(cnt == 20) {
+			  flash_ReadN(0,&temp_controller.current,10,DATA_TYPE_32);
+			  cnt=0;
+		  }
+
 	  }
 	  if(flag_200ms){
 		  flag_200ms=0;

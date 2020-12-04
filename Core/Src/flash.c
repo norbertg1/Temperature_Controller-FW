@@ -19,8 +19,8 @@ Description:
 
 #include "flash.h"
 
-#define FLASH_USER_START_ADDR   ADDR_FLASH_PAGE_24   /* Start @ of user Flash area */
-#define FLASH_USER_END_ADDR     ADDR_FLASH_PAGE_25   /* End @ of user Flash area */
+#define FLASH_USER_START_ADDR   ADDR_FLASH_PAGE_110   /* Start @ of user Flash area */
+#define FLASH_USER_END_ADDR     ADDR_FLASH_PAGE_111   /* End @ of user Flash area */
 
 //Private variables
 //1. sector start address
@@ -50,7 +50,7 @@ static void flash_EraseSector(void)
 //3. Write Flash
 void flash_WriteN(uint32_t idx, void *wrBuf, uint32_t Nsize, DataTypeDef dataType)
 {
-	uint32_t flashAddress = ADDR_FLASH_PAGE_16 + idx;
+	uint32_t flashAddress = FLASH_USER_START_ADDR + idx;
 	HAL_StatusTypeDef ret;
 
 	//Erase sector before write
@@ -102,7 +102,7 @@ void flash_WriteN(uint32_t idx, void *wrBuf, uint32_t Nsize, DataTypeDef dataTyp
 //4. Read Flash
 void flash_ReadN(uint32_t idx, void *rdBuf, uint32_t Nsize, DataTypeDef dataType)
 {
-	uint32_t flashAddress = MY_SectorAddrs + idx;
+	uint32_t flashAddress = FLASH_USER_START_ADDR + idx;
 
 	switch(dataType)
 	{
