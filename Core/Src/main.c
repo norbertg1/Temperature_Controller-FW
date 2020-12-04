@@ -148,9 +148,7 @@ int main(void)
   unsigned long t1,delta_t1;
   HAL_Delay(1000);
   //temp_controller.pid.Kp = 10;
-  __disable_irq();
-  flash_WriteN(0, &temp_controller.current,144,DATA_TYPE_64);
-  __enable_irq();
+
 
   while(1){
 
@@ -168,11 +166,11 @@ int main(void)
 		  cnt++;
 		  if(cnt == 10){
 			  __disable_irq();
-			  flash_WriteN(0, &temp_controller.current,10,DATA_TYPE_32);
+			  flash_WriteN(0, &temp_controller.target_temp,12,DATA_TYPE_32);
 			  __enable_irq();
 		  }
 		  if(cnt == 20) {
-			  flash_ReadN(0,&temp_controller.current,10,DATA_TYPE_32);
+			  flash_ReadN(0,&temp_controller.target_temp,12,DATA_TYPE_32);
 			  cnt=0;
 		  }
 

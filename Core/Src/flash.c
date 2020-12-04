@@ -76,7 +76,7 @@ void flash_WriteN(uint32_t idx, void *wrBuf, uint32_t Nsize, DataTypeDef dataTyp
 				for(uint32_t i=0; i<Nsize; i++)
 				{
 					ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, flashAddress , ((uint32_t *)wrBuf)[i]);
-					flashAddress+=2;
+					flashAddress+=4;
 				}
 				if(ret != HAL_OK){
 					ret = HAL_FLASH_GetError();
@@ -118,7 +118,7 @@ void flash_ReadN(uint32_t idx, void *rdBuf, uint32_t Nsize, DataTypeDef dataType
 				for(uint32_t i=0; i<Nsize; i++)
 				{
 					*((uint32_t *)rdBuf + i) = *(uint32_t *)flashAddress;
-					flashAddress+=2;
+					flashAddress+=4;
 				}
 			break;
 

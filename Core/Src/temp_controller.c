@@ -74,7 +74,7 @@ void update_pid(){
 
 void set_defaults(){
 	HAL_Delay(100);
-	flash_ReadN(0,&temp_controller.current,8,DATA_TYPE_32);
+	flash_ReadN(0,&temp_controller.target_temp,12,DATA_TYPE_32);
 	temp_controller.target_temp = 0;
 	temp_controller.menu = 2;
 	temp_controller.pid.errorSum = 0;
