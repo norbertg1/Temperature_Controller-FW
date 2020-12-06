@@ -21,7 +21,7 @@ int lookup_temp_table[2][4] = {
 		{10E3,20E3,30E3,40E3}
 };
 uint32_t adc[2];
-short flag_10ms, flag_200ms, flag_1s,  flag_10s, cnt_adc=0;
+short defaults=0, flag_10ms, flag_200ms, flag_1s,  flag_10s, cnt_adc=0;
 
 void turn_on_green_LED(){
 	HAL_GPIO_WritePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin, 1);
@@ -58,7 +58,7 @@ void set_duty_cycle(int dc){
 }
 
 void update_pid(){
-	static uint32_t t;
+	static uint32_t t,cnt=0, last_t[100];
 	float error, prev_error, d_error, delta_t, pid_out;
 	temp_controller.pid.delta_t = (HAL_GetTick()-t)/1000.0;
 	prev_error = temp_controller.pid.error;
@@ -70,13 +70,13 @@ void update_pid(){
 	temp_controller.pid.errorSum += error;
 	set_duty_cycle(50);
 	t=HAL_GetTick();
+	last_t[cnt++]=temp_controller.pid.delta_t*1000;
+	if (cnt==99) cnt=0;
 }
 
-void set_defaults(){
-	HAL_Delay(100);
+void read_flash(){
 	flash_ReadN(0,&temp_controller.target_temp,12,DATA_TYPE_32);
-	temp_controller.target_temp = 0;
-	temp_controller.menu = 2;
+	temp_controller.menu = 1;
 	temp_controller.pid.errorSum = 0;
 	/*temp_controller.pid.Kp=0.1;
 	temp_controller.pid.Kd=0.1;
@@ -89,7 +89,6 @@ float *get_rotating_menu_item(temperature_controller_data* controller){
 	if(controller->menu==2)	return	&controller->pid.Kp;
 	if(controller->menu==3)	return	&controller->pid.Kd;
 	if(controller->menu==4)	return	&controller->pid.Ki;
-
 }
 
 void rotate(float value, float* ptr){
@@ -111,8 +110,18 @@ short is_long_pressed(GPIO_TypeDef* gpio_port, uint16_t button_pin, short polari
 	return 0;
 }
 
+uint32_t get_long_press_legth(GPIO_TypeDef* gpio_port, uint16_t button_pin){
+	DWT->CTRL |= 1 ; // enable the counter
+	DWT->CYCCNT = 0; // reset the counter
+	while(HAL_GPIO_ReadPin(gpio_port, button_pin) == 0){
+			__NOP();
+	}
+	return DWT->CYCCNT/(SystemCoreClock/1000);
+}
+
 void snake_game_control(uint16_t GPIO_Pin){
 	static uint32_t last_time;
+
 	switch (GPIO_Pin){
 	case ENCODER_PUSH_BUTTON_Pin:
 		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_PRESS)){
@@ -136,19 +145,28 @@ void snake_game_control(uint16_t GPIO_Pin){
 //Interrupt function called on button press
 void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
 	HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
-	if(temp_controller.menu == 5) {					//snake game
+	if(temp_controller.menu == 6) {					//snake game
 		snake_game_control(GPIO_Pin);
 		HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 		return;
 	}
 	static uint32_t last_time;
 	float* ptr=get_rotating_menu_item(&temp_controller);
+
 	switch(GPIO_Pin){
 	case ENCODER_PUSH_BUTTON_Pin:
-		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_PRESS)){
-			temp_controller.menu = 5;
-			return;
+		if (temp_controller.menu == 5 && is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_PRESS)){
+			set_defaults();
+			flash_WriteN(0, &temp_controller.target_temp,6,DATA_TYPE_64);
+			last_time = HAL_GetTick();
+			break;
 		}
+		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_LONG_PRESS)){
+			temp_controller.menu = 6;
+			last_time = HAL_GetTick();
+			break;
+		}
+
 		if((HAL_GetTick()-last_time) > SHORT_PRESS)  temp_controller.menu++;
 		if(temp_controller.menu > MENU_MAX-1) temp_controller.menu=1;
 		last_time = HAL_GetTick();
@@ -158,6 +176,8 @@ void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
 			if((HAL_GetTick()-last_time) > ROTARY_SLOW)			rotate(-0.1,ptr);
 			else if((HAL_GetTick()-last_time) > ROTARY_FAST)	rotate(-1,ptr);
 			else												break;
+			defaults = 0;
+			flash_WriteN(0, &temp_controller.target_temp,6,DATA_TYPE_64);
 			last_time = HAL_GetTick();
 		}
 		break;
@@ -166,9 +186,9 @@ void HAL_GPIO_EXTI_Callback (uint16_t GPIO_Pin){
 			if((HAL_GetTick()-last_time) > ROTARY_SLOW)			rotate(+0.1,ptr);
 			else if((HAL_GetTick()-last_time) > ROTARY_FAST)	rotate(+1,ptr);
 			else												break;
+			defaults = 0;
+			flash_WriteN(0, &temp_controller.target_temp,6,DATA_TYPE_64);
 			last_time = HAL_GetTick();
-			int l = sizeof(temp_controller);
-			int k = sizeof(temperature_controller_data);
 		}
 		break;
 	}
@@ -203,6 +223,7 @@ void Redraw_display(){
 		power_str_nr = ftoa(temp_controller.power, power_str, 1);
 
 		u8g2_ClearBuffer(&u8g2);
+		u8g2_SetDrawColor(&u8g2, 1);
 		u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
 		u8g2_DrawUTF8(&u8g2, -1, 14, "Curr.");
 		u8g2_DrawUTF8(&u8g2, 0, 26, "temp.:");
@@ -245,7 +266,24 @@ void Redraw_display(){
 		u8g2_DrawUTF8(&u8g2, 0, 42, "*");
 		u8g2_SendBuffer(&u8g2);
 		break;
+	case 5:
+		u8g2_ClearBuffer(&u8g2);
+		u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
+		u8g2_DrawUTF8(&u8g2, 0, 14, "For set defaults");
+		u8g2_DrawUTF8(&u8g2, 0, 28, "long press the");
+		u8g2_DrawUTF8(&u8g2, 0, 42, "button!");
+		if(defaults) u8g2_DrawUTF8(&u8g2, 80, 42, "OK");
+		u8g2_SendBuffer(&u8g2);
+		break;
 	}
+}
+
+void set_defaults(){
+	defaults = 1;
+	temp_controller.target_temp = 0;
+	temp_controller.pid.Kp=0.1;
+	temp_controller.pid.Kd=0.1;
+	temp_controller.pid.Ki=0.1;
 }
 
 void menu234(){
@@ -268,8 +306,15 @@ void menu234(){
 	u8g2_DrawUTF8(&u8g2, 90, 56, "ms");
 }
 
-void TIM4_callback(){ //10ms interrupt, 100Hz
+void TIM4_callback(){ 	//10ms interrupt, 100Hz
+	HAL_SDADC_Start_DMA(&hsdadc1, (uint32_t*) adc_buf, 1);
+	HAL_SDADC_Start_DMA(&hsdadc2, (uint32_t*) &adc_buf[1], 1);
+	//update_pid();
 	flag_10ms=1;
+}
+
+void TIM12_callback(){	//10ms interrupt, 100Hz
+
 }
 
 void TIM6_callback(){ //200ms interrupt
@@ -294,6 +339,7 @@ void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef* hsdadc){
 		HAL_SDADC_Stop_DMA(&hsdadc1);
 		HAL_SDADC_Stop_DMA(&hsdadc2);
 		calc_adc_values();
+		update_pid();
 	}
 }
 

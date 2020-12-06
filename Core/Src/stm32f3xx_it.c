@@ -63,6 +63,7 @@ extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
+extern TIM_HandleTypeDef htim12;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -273,6 +274,20 @@ void EXTI15_10_IRQHandler(void)
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
 
   /* USER CODE END EXTI15_10_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM12 global interrupt.
+  */
+void TIM12_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM12_IRQn 0 */
+	TIM12_callback();
+  /* USER CODE END TIM12_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim12);
+  /* USER CODE BEGIN TIM12_IRQn 1 */
+
+  /* USER CODE END TIM12_IRQn 1 */
 }
 
 /**

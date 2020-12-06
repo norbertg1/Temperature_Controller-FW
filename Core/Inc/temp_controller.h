@@ -15,9 +15,10 @@
 #define ADC_BUF_LEN				2
 #define ROTARY_FAST				20 // [ms] rotary speed fast
 #define ROTARY_SLOW				200 // [ms] rotary speed slow
-#define MENU_MAX				5
-#define ADC_AVARAGE				100
-#define LONG_PRESS				5000
+#define MENU_MAX				6
+#define ADC_AVARAGE				50
+#define LONG_PRESS				3000
+#define LONG_LONG_PRESS			10000
 #define SHORT_PRESS				100
 #define	END						0
 #define RIGHT					3
@@ -79,6 +80,7 @@ void init_bmp280(struct _BMP280_HandleTypedef *, int );
 void read_bmp280(struct _BMP280_HandleTypedef *, struct BMP280_data *);
 void update_pid();
 void set_defaults();
+void read_flash();
 void Redraw_display();
 void menu234();
 void TIM3_callback();

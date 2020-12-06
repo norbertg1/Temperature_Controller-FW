@@ -65,7 +65,7 @@ void flash_WriteN(uint32_t idx, void *wrBuf, uint32_t Nsize, DataTypeDef dataTyp
 				for(uint32_t i=0; i<Nsize; i++)
 				{
 					ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, flashAddress , ((uint16_t *)wrBuf)[i]);
-					flashAddress++;
+					flashAddress+=2;
 				}
 				if(ret != HAL_OK){
 					ret = HAL_FLASH_GetError();
@@ -87,7 +87,7 @@ void flash_WriteN(uint32_t idx, void *wrBuf, uint32_t Nsize, DataTypeDef dataTyp
 				for(uint32_t i=0; i<Nsize; i++)
 				{
 					ret = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, flashAddress , ((uint64_t *)wrBuf)[i]);
-					flashAddress+=4;
+					flashAddress+=8;
 				}
 				if(ret != HAL_OK){
 					ret = HAL_FLASH_GetError();
@@ -110,7 +110,7 @@ void flash_ReadN(uint32_t idx, void *rdBuf, uint32_t Nsize, DataTypeDef dataType
 				for(uint32_t i=0; i<Nsize; i++)
 				{
 					*((uint16_t *)rdBuf + i) = *(uint16_t *)flashAddress;
-					flashAddress++;
+					flashAddress+=2;
 				}
 			break;
 
@@ -123,10 +123,10 @@ void flash_ReadN(uint32_t idx, void *rdBuf, uint32_t Nsize, DataTypeDef dataType
 			break;
 
 		case DATA_TYPE_64:
-				for(uint32_t i=0; i<Nsize; i++)
+				for(uint64_t i=0; i<Nsize; i++)
 				{
 					*((uint64_t *)rdBuf + i) = *(uint64_t *)flashAddress;
-					flashAddress+=4;
+					flashAddress+=8;
 				}
 			break;
 	}

@@ -55,6 +55,7 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
+TIM_HandleTypeDef htim12;
 
 /* USER CODE BEGIN PV */
 INA226 INA226_1,INA226_2;
@@ -74,6 +75,7 @@ static void MX_SDADC1_Init(void);
 static void MX_SDADC2_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_TIM6_Init(void);
+static void MX_TIM12_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -121,6 +123,7 @@ int main(void)
   MX_SDADC2_Init();
   MX_TIM7_Init();
   MX_TIM6_Init();
+  MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
   //------- SDADC DMA setup ----------------------------------
   HAL_SDADC_CalibrationStart(&hsdadc1, SDADC_CALIBRATION_SEQ_3);
@@ -138,42 +141,28 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);		//PWM
   HAL_TIM_Base_Start_IT(&htim3); 	//1second interrupt
   HAL_TIM_Base_Start_IT(&htim4);	//10miliseconds interrupt
+  HAL_TIM_Base_Start_IT(&htim12);	//10miliseconds interrupt
   HAL_TIM_Base_Start_IT(&htim6); 	//100miliseconds interrupt
   HAL_TIM_Base_Start_IT(&htim7); 	//10second interrupt
   //-----OLED display setup----
   u8g2_Setup_ssd1306_128x64_noname_f(&u8g2, U8G2_R0, u8x8_byte_stm32_hw_i2c, u8x8_stm32_gpio_and_delay);
   u8g2_InitDisplay(&u8g2);
   u8g2_SetPowerSave(&u8g2, 0);
-  set_defaults();
+  read_flash();
   unsigned long t1,delta_t1;
   HAL_Delay(1000);
   //temp_controller.pid.Kp = 10;
 
-
+  int cnt=0;
   while(1){
-
 	  if(flag_10ms){
 		  flag_10ms=0;
-		  update_pid();
-		  HAL_SDADC_Start_DMA(&hsdadc1, (uint32_t*) adc_buf, 1);
-		  HAL_SDADC_Start_DMA(&hsdadc2, (uint32_t*) &adc_buf[1], 1);
 	  }
 	  if(flag_1s){
 		  flag_1s=0;
 		  INA226_MeasureAll(&INA226_1);
 		  INA226_MeasureAll(&INA226_2);
-		  static int cnt;
 		  cnt++;
-		  if(cnt == 10){
-			  __disable_irq();
-			  flash_WriteN(0, &temp_controller.target_temp,12,DATA_TYPE_32);
-			  __enable_irq();
-		  }
-		  if(cnt == 20) {
-			  flash_ReadN(0,&temp_controller.target_temp,12,DATA_TYPE_32);
-			  cnt=0;
-		  }
-
 	  }
 	  if(flag_200ms){
 		  flag_200ms=0;
@@ -183,7 +172,7 @@ int main(void)
 		  delta_t1 = HAL_GetTick()-t1;
 		  //HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
 	  	  }
-	  if(temp_controller.menu == 5)	snake_start(&u8g2);
+	  if(temp_controller.menu == 6)	snake_start(&u8g2);
 	  HAL_Delay(1);
   }
 
@@ -215,10 +204,14 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -227,12 +220,12 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -240,7 +233,7 @@ void SystemClock_Config(void)
                               |RCC_PERIPHCLK_ADC1|RCC_PERIPHCLK_SDADC;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
   PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_HSI;
-  PeriphClkInit.SdadcClockSelection = RCC_SDADCSYSCLK_DIV16;
+  PeriphClkInit.SdadcClockSelection = RCC_SDADCSYSCLK_DIV32;
   PeriphClkInit.Adc1ClockSelection = RCC_ADC1PCLK2_DIV8;
 
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
@@ -533,7 +526,7 @@ static void MX_TIM2_Init(void)
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 160;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV4;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
@@ -592,7 +585,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 8000;
+  htim3.Init.Prescaler = 32000;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 1000;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -637,7 +630,7 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 8000;
+  htim4.Init.Prescaler = 32000;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = 10;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -681,7 +674,7 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 8000;
+  htim6.Init.Prescaler = 32000;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim6.Init.Period = 100;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -719,7 +712,7 @@ static void MX_TIM7_Init(void)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 8000;
+  htim7.Init.Prescaler = 32000;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim7.Init.Period = 10000;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -736,6 +729,51 @@ static void MX_TIM7_Init(void)
   /* USER CODE BEGIN TIM7_Init 2 */
 
   /* USER CODE END TIM7_Init 2 */
+
+}
+
+/**
+  * @brief TIM12 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM12_Init(void)
+{
+
+  /* USER CODE BEGIN TIM12_Init 0 */
+
+  /* USER CODE END TIM12_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_SlaveConfigTypeDef sSlaveConfig = {0};
+
+  /* USER CODE BEGIN TIM12_Init 1 */
+
+  /* USER CODE END TIM12_Init 1 */
+  htim12.Instance = TIM12;
+  htim12.Init.Prescaler = 32000;
+  htim12.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim12.Init.Period = 10;
+  htim12.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim12.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim12) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim12, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sSlaveConfig.SlaveMode = TIM_SLAVEMODE_DISABLE;
+  sSlaveConfig.InputTrigger = TIM_TS_ITR0;
+  if (HAL_TIM_SlaveConfigSynchro(&htim12, &sSlaveConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM12_Init 2 */
+
+  /* USER CODE END TIM12_Init 2 */
 
 }
 
