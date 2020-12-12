@@ -110,6 +110,8 @@ float round_n(float number, int dec){
 
 short is_long_pressed(GPIO_TypeDef* gpio_port, uint16_t button_pin, short polarity, uint16_t long_press){
 	//In interrupt we cannot use HAL counter
+	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+	//ITM->LAR = 0xC5ACCE55;
 	DWT->CTRL |= 1 ; // enable the counter
 	DWT->CYCCNT = 0; // reset the counter
 	while(HAL_GPIO_ReadPin(gpio_port, button_pin) == polarity){
@@ -120,6 +122,8 @@ short is_long_pressed(GPIO_TypeDef* gpio_port, uint16_t button_pin, short polari
 }
 
 uint32_t get_long_press_legth(GPIO_TypeDef* gpio_port, uint16_t button_pin){
+	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+	//ITM->LAR = 0xC5ACCE55;
 	DWT->CTRL |= 1 ; // enable the counter
 	DWT->CYCCNT = 0; // reset the counter
 	while(HAL_GPIO_ReadPin(gpio_port, button_pin) == 0){

@@ -150,7 +150,6 @@ int main(void)
   u8g2_SetPowerSave(&u8g2, 0);
   read_flash();
   unsigned long t1,delta_t1;
-  HAL_Delay(1000);
   //temp_controller.pid.Kp = 10;
 
   int cnt=0;
