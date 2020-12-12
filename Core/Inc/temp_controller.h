@@ -41,6 +41,7 @@ typedef struct PID{
 	float error;
 	float errorSum;
 	float delta_t;
+	float out;
 }PID;
 
 typedef struct    {

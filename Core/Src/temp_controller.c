@@ -16,10 +16,13 @@ BMP280_data BMP280_sensor;
 struct _BMP280_HandleTypedef bmp280;
 float Vref=1.225,
 		R0 = 10000;
-int lookup_temp_table[2][4] = {
-		{0,1,2,3},
-		{10E3,20E3,30E3,40E3}
+
+//NTCS0603E3222FMT
+int lookup_temp_table[2][32] = {
+		{-55, -50, -45, -40, -35, -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100},
+		{140977.4, 100848.5, 73027.9, 53502.6, 39637.3, 29679.8, 22451.0, 17148.6, 13220.6, 10283.1, 8066.2, 6378.5, 5083.1, 4080.7, 3299.2, 2685.5, 2200.0, 1813.5, 1503.7, 1253.9, 1051.3, 886.1, 750.5, 638.7, 546.1, 468.9, 404.4, 350.2, 304.4, 265.6, 232.6, 204.4}
 };
+
 uint32_t adc[2];
 short defaults=0, flag_10ms, flag_200ms, flag_1s,  flag_10s, cnt_adc=0;
 
@@ -59,15 +62,21 @@ void set_duty_cycle(int dc){
 
 void update_pid(){
 	static uint32_t t,cnt=0, last_t[100];
-	float error, prev_error, d_error, delta_t, pid_out;
+	static float prev_error;
+	float error, d_error, delta_t, pid_out;
 	temp_controller.pid.delta_t = (HAL_GetTick()-t)/1000.0;
-	prev_error = temp_controller.pid.error;
 	error = temp_controller.target_temp - temp_controller.current_temp;
-	d_error = prev_error - temp_controller.pid.error;
-	pid_out = temp_controller.pid.Kp * error
-			+ temp_controller.pid.Kd * d_error * delta_t
+	d_error = prev_error - error;
+	prev_error = error;
+	temp_controller.pid.out =
+			temp_controller.pid.Kp * error
+			+ temp_controller.pid.Kd * d_error * temp_controller.pid.delta_t
 			+ temp_controller.pid.Ki * temp_controller.pid.errorSum;
-	temp_controller.pid.errorSum += error;
+	/*if(fabs(temp_controller.pid.errorSum) < 100) {
+		temp_controller.pid.errorSum += error;
+	}*/
+	temp_controller.pid.errorSum = temp_controller.pid.errorSum * (9.0/10.0);
+	temp_controller.pid.errorSum += 0.001*error;
 	set_duty_cycle(50);
 	t=HAL_GetTick();
 	last_t[cnt++]=temp_controller.pid.delta_t*1000;
@@ -214,7 +223,7 @@ void Redraw_display(){
 		char current_temp_str[10], target_temp_str[10], voltage_str[10], current_str[10], power_str[10];
 		short current_temp_str_nr, target_temp_str_nr, voltage_str_nr, current_str_nr, power_str_nr;
 		short pwm_pixels = 40;
-		short pwm = 0;
+		short pwm = fabs(temp_controller.pid.out);
 
 		current_temp_str_nr = ftoa(temp_controller.current_temp, current_temp_str, 2);
 		target_temp_str_nr = ftoa(temp_controller.target_temp, target_temp_str, 1);
