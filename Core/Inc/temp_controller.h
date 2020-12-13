@@ -18,10 +18,10 @@
 #define MENU_MAX				6
 #define ADC_AVARAGE				50
 #define LONG_PRESS				3000
-#define LONG_LONG_PRESS			10000
+#define LONG_LONG_PRESS			5000
 #define SHORT_PRESS				100
 #define	END						0
-#define RIGHT					3
+#define RIGHT					2
 #define	LEFT					4
 
 uint16_t adc_buf[ADC_BUF_LEN];
