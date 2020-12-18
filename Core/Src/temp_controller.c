@@ -17,11 +17,7 @@ struct _BMP280_HandleTypedef bmp280;
 float Vref=1.225,
 		R0 = 10000;
 
-//NTCS0603E3222FMT
-int lookup_temp_table[2][32] = {
-		{-55, -50, -45, -40, -35, -30, -25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100},
-		{140977.4, 100848.5, 73027.9, 53502.6, 39637.3, 29679.8, 22451.0, 17148.6, 13220.6, 10283.1, 8066.2, 6378.5, 5083.1, 4080.7, 3299.2, 2685.5, 2200.0, 1813.5, 1503.7, 1253.9, 1051.3, 886.1, 750.5, 638.7, 546.1, 468.9, 404.4, 350.2, 304.4, 265.6, 232.6, 204.4}
-};
+
 
 uint32_t adc[2];
 short defaults=0, flag_10ms, flag_200ms, flag_1s,  flag_10s, cnt_adc=0;
@@ -55,9 +51,10 @@ void start_pwm(TIM_HandleTypeDef *htim){
 	HAL_TIM_PWM_Start(htim, TIM_CHANNEL_2);		//PWM enable
 }
 
-void set_duty_cycle(int dc){
-	TIM2->CCR1=dc;
-	TIM2->CCR2=dc;
+void set_duty_cycle(float percent){
+	int set_pwm = (PWM_COUNTER_PERIOD/100.0)*percent;
+	TIM2->CCR1=set_pwm;
+	TIM2->CCR2=set_pwm;
 }
 
 void update_pid(){
@@ -66,18 +63,30 @@ void update_pid(){
 	float error, d_error, delta_t, pid_out;
 	temp_controller.pid.delta_t = (HAL_GetTick()-t)/1000.0;
 	error = temp_controller.target_temp - temp_controller.current_temp;
-	d_error = prev_error - error;
+	d_error = error - prev_error;
 	prev_error = error;
-	temp_controller.pid.out =
+	float kd = temp_controller.pid.Kd * d_error * temp_controller.pid.delta_t;
+	temp_controller.pid.out = - (
 			temp_controller.pid.Kp * error
 			+ temp_controller.pid.Kd * d_error * temp_controller.pid.delta_t
-			+ temp_controller.pid.Ki * temp_controller.pid.errorSum;
+			+ temp_controller.pid.Ki * temp_controller.pid.errorSum);
 	/*if(fabs(temp_controller.pid.errorSum) < 100) {
 		temp_controller.pid.errorSum += error;
 	}*/
-	temp_controller.pid.errorSum = temp_controller.pid.errorSum * (9.0/10.0);
-	temp_controller.pid.errorSum += 0.001*error;
-	set_duty_cycle(50);
+	//temp_controller.pid.errorSum = temp_controller.pid.errorSum * (9.0/10.0);
+	temp_controller.target_temp = round(temp_controller.target_temp*10)/10;
+	static int i = 0;
+	static float x[100],temp[100],e[100];
+	e[i] = error;
+	x[i]= 0.05*error;
+	temp[i++] = temp_controller.current_temp;
+	if(i>98) i=0;
+	temp_controller.pid.errorSum += 0.05*error;
+	if(temp_controller.pid.errorSum > 200) temp_controller.pid.errorSum=200;
+	if(temp_controller.pid.errorSum < -200) temp_controller.pid.errorSum=-200;
+	if(temp_controller.pid.out > MAX_POWER_PERCENT) temp_controller.pid.out = MAX_POWER_PERCENT;
+	if(temp_controller.pid.out < 0) temp_controller.pid.out = 0; 					//The hardware doesnt support heating
+	set_duty_cycle(temp_controller.pid.out);
 	t=HAL_GetTick();
 	last_t[cnt++]=temp_controller.pid.delta_t*1000;
 	if (cnt==99) cnt=0;
@@ -101,7 +110,7 @@ float *get_rotating_menu_item(temperature_controller_data* controller){
 }
 
 void rotate(float value, float* ptr){
-	*ptr+=value;
+	*ptr += value;
 }
 
 float round_n(float number, int dec){
@@ -216,12 +225,12 @@ void Redraw_display(){
 	{
 	case 1:
 		if(INA226_1.Result.Current_uA 	>= 	INA226_2.Result.Current_uA) {
-			temp_controller.current	= 	INA226_1.Result.Current_uA/10E6;
-			temp_controller.power 	= 	INA226_1.Result.Power_uW /10E6;
+			temp_controller.current	= 	INA226_1.Result.Current_uA/1E6;
+			temp_controller.power 	= 	INA226_1.Result.Power_uW /1E6;
 		}
 		else {
-			temp_controller.current =	INA226_2.Result.Current_uA/10E6;
-			temp_controller.power 	= 	INA226_2.Result.Power_uW /10E6;
+			temp_controller.current =	INA226_2.Result.Current_uA/1E6;
+			temp_controller.power 	= 	INA226_2.Result.Power_uW /1E6;
 		}
 
 		char current_temp_str[10], target_temp_str[10], voltage_str[10], current_str[10], power_str[10];
@@ -294,9 +303,10 @@ void Redraw_display(){
 void set_defaults(){
 	defaults = 1;
 	temp_controller.target_temp = 0;
-	temp_controller.pid.Kp=0.1;
-	temp_controller.pid.Kd=0.1;
-	temp_controller.pid.Ki=0.1;
+	temp_controller.pid.errorSum = 0;
+	temp_controller.pid.Kp=7.0;
+	temp_controller.pid.Kd=1000;
+	temp_controller.pid.Ki=0.5;
 }
 
 void menu234(){
@@ -373,18 +383,18 @@ void calc_adc_values(){
 float lookup_temp(float R){
     int i = 0;
     float deltaT,deltaR,T;
-    while(R<lookup_temp_table[1][i]){
+    while(R<lookup_temp_table[i][1]){
         i++;
         if((i+1)==sizeof(lookup_temp_table)/sizeof(int)/2) {
-                deltaT = lookup_temp_table[0][i]-lookup_temp_table[0][i-1];
-                deltaR = lookup_temp_table[1][i]-lookup_temp_table[1][i-1];
-                T=lookup_temp_table[0][i]+(R-lookup_temp_table[1][i])*deltaT/deltaR;
+                deltaT = lookup_temp_table[i][0]-lookup_temp_table[i-1][0];
+                deltaR = lookup_temp_table[i][1]-lookup_temp_table[i-1][1];
+                T=lookup_temp_table[i][0]+(R-lookup_temp_table[i][1])*deltaT/deltaR;
                 return T;
         }
     }
-    deltaT = lookup_temp_table[0][i+1]-lookup_temp_table[0][i];
-    deltaR = lookup_temp_table[1][i+1]-lookup_temp_table[1][i];
-    T=lookup_temp_table[0][i]+(R-lookup_temp_table[1][i])*deltaT/deltaR;
+    deltaT = lookup_temp_table[i+1][0]-lookup_temp_table[i][0];
+    deltaR = lookup_temp_table[i+1][1]-lookup_temp_table[i][1];
+    T=lookup_temp_table[i][0]+(R-lookup_temp_table[i][1])*deltaT/deltaR;
     return T;
 }
 
@@ -407,17 +417,4 @@ void read_bmp280(struct _BMP280_HandleTypedef *bmp280, struct BMP280_data *BMP28
 		HAL_Delay(2000);
 		//Problem with BMP280
 	}
-}
-
-void valami(){
-	  if(flag_1s){
-		  flag_1s=0;
-		  INA226_MeasureAll(&INA226_1);
-		  INA226_MeasureAll(&INA226_2);
-	  }
-	  if(flag_10ms){
-		  flag_10ms=0;
-	  }
-	  Redraw_display();
-	  HAL_Delay(100);
 }

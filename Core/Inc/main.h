@@ -76,6 +76,8 @@ extern SDADC_HandleTypeDef hsdadc2;
 #define ENCODER_B_Pin GPIO_PIN_15
 #define ENCODER_B_GPIO_Port GPIOC
 #define ENCODER_B_EXTI_IRQn EXTI15_10_IRQn
+#define PWM1_Pin GPIO_PIN_0
+#define PWM1_GPIO_Port GPIOA
 #define PWM2_Pin GPIO_PIN_1
 #define PWM2_GPIO_Port GPIOA
 #define EN2_Pin GPIO_PIN_2
@@ -94,8 +96,6 @@ extern SDADC_HandleTypeDef hsdadc2;
 #define NTC__GPIO_Port GPIOE
 #define NTC_E9_Pin GPIO_PIN_9
 #define NTC_E9_GPIO_Port GPIOE
-#define PWM1_Pin GPIO_PIN_15
-#define PWM1_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

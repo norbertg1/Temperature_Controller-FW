@@ -67,7 +67,7 @@ int ftoa(float n, char* res, int afterpoint)
         // of points after dot. The third parameter  
         // is needed to handle cases like 233.007 
         float ff = pow(10, (float)afterpoint);
-        fpart = fpart * ff;
+        fpart = round((fpart * ff)*1000)/1000;
   
         intToStr((int)fpart, res + i + 1 + sign, afterpoint);
     }

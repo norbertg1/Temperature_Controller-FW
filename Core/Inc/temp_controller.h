@@ -11,6 +11,7 @@
 #include "main.h"
 #include "bmp280.h"
 #include "float_to_string.h"
+#include "NTC_lookup_table.h"
 
 #define ADC_BUF_LEN				2
 #define ROTARY_FAST				20 // [ms] rotary speed fast
@@ -23,6 +24,8 @@
 #define	END						0
 #define RIGHT					2
 #define	LEFT					4
+#define PWM_COUNTER_PERIOD		1440
+#define	MAX_POWER_PERCENT		70
 
 uint16_t adc_buf[ADC_BUF_LEN];
 
@@ -73,7 +76,7 @@ void turn_off_red_LED();
 void toggle_red_LED();
 void blink();
 void start_pwm(TIM_HandleTypeDef *);
-void set_duty_cycle(int);
+void set_duty_cycle(float);
 void HAL_GPIO_EXTI_Callback (uint16_t );
 void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef* hsdadc);
 float lookup_temp(float R);
