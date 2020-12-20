@@ -56,6 +56,8 @@
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32F3xx/Include"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Temperature controller/Drivers/ssd1306}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Temperature controller/Core/Inc/sys}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Temperature controller/Core/Src/sys}&quot;"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.291824127" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
@@ -73,6 +75,8 @@
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32F3xx/Include"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Temperature controller/Drivers/ssd1306}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Temperature controller/Core/Inc/sys}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Temperature controller/Core/Src/sys}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.option.definedsymbols.228263809" name="Define symbols (-D)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.option.definedsymbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
