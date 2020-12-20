@@ -97,7 +97,8 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+
+	HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -171,7 +172,7 @@ int main(void)
 		  Redraw_display();
 		  delta_t1 = HAL_GetTick()-t1;
 	  	  }
-	  if(temp_controller.menu == 6)	snake_start(&u8g2);
+	  if(temp_controller.menu == SNAKE_MENU)	snake_start(&u8g2);
 	  HAL_Delay(1);
   }
 

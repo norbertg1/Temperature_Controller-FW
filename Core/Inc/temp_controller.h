@@ -12,11 +12,19 @@
 #include "bmp280.h"
 #include "float_to_string.h"
 #include "NTC_lookup_table.h"
+#include "interrupt_callbacks.h"
+#include "encoder.h"
 
 #define ADC_BUF_LEN				2
 #define ROTARY_FAST				20 // [ms] rotary speed fast
 #define ROTARY_SLOW				200 // [ms] rotary speed slow
-#define MENU_MAX				6
+#define MENU_MAX				7
+#define SET_Kp_MENU				2
+#define SET_Kd_MENU				3
+#define SET_Ki_MENU				4
+#define SET_P_MENU				5
+#define SET_DEFAULTS_MENU		6
+#define SNAKE_MENU				7
 #define ADC_AVARAGE				50
 #define LONG_PRESS				3000
 #define LONG_LONG_PRESS			5000
@@ -25,7 +33,7 @@
 #define RIGHT					2
 #define	LEFT					4
 #define PWM_COUNTER_PERIOD		1440
-#define	MAX_POWER_PERCENT		70
+#define	MAX_POWER_PERCENT		80
 
 uint16_t adc_buf[ADC_BUF_LEN];
 
@@ -38,22 +46,24 @@ typedef struct    {
 }adc_data;
 
 typedef struct PID{
-	float Kp;
-	float Kd;
-	float Ki;
-	float error;
-	float errorSum;
-	float delta_t;
-	float out;
+	int 	Kp;
+	int 	Kd;
+	int 	Ki;
+	float 	error;
+	float 	errorSum;
+	float 	delta_t;
+	int 	max_P;         //in percent
+	float 	out;
 }PID;
 
 typedef struct    {
-	float target_temp;
+	int target_temp;
 	float current_temp;
 	float voltage;
 	float current;
 	float power;
 	short menu;
+	short defaults;
 	PID	  pid;
 } temperature_controller_data;
 
@@ -63,7 +73,6 @@ typedef struct BMP280_data{
 	float humidity;	//BMP280 not support it
 }BMP280_data;
 
-extern short flag_10ms, flag_200ms, flag_1s, flag_10s;
 extern short cnt_adc;
 extern temperature_controller_data temp_controller;
 
@@ -87,9 +96,6 @@ void set_defaults();
 void read_flash();
 void Redraw_display();
 void menu234();
-void TIM3_callback();
-void TIM4_callback();
-void TIM6_callback();
-void TIM7_callback();
+
 
 #endif /* INC_TEMP_CONTROLLER_H_ */
