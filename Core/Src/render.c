@@ -85,6 +85,7 @@ void Redraw_display(){
 		u8g2_DrawUTF8(&u8g2, 10, 14, "max P: ");
 		u8g2_DrawUTF8(&u8g2, 64, 14, maxP_str);
 		u8g2_DrawUTF8(&u8g2, 0, 14, "*");
+		u8g2_DrawUTF8(&u8g2, 88, 14, "%");
 		u8g2_SendBuffer(&u8g2);
 		break;
 	case SET_DEFAULTS_MENU:
