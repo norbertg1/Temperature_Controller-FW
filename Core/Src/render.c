@@ -7,41 +7,24 @@
 
 #include "render.h"
 
-void Redraw_display(){
-	int t1,t2,delta_t;
+void menu15();
+void menu234();
 
+void Redraw_display(){
+	char maxP_str[10], current_str[10], power_str[10];
+	short current_str_nr, power_str_nr;
 	switch(temp_controller.menu)
 	{
 	case 1:
-		if(INA226_1.Result.Current_uA 	>= 	INA226_2.Result.Current_uA) {
-			temp_controller.current	= 	INA226_1.Result.Current_uA/1E6;
-			temp_controller.power 	= 	INA226_1.Result.Power_uW /1E6;
-		}
-		else {
-			temp_controller.current =	INA226_2.Result.Current_uA/1E6;
-			temp_controller.power 	= 	INA226_2.Result.Power_uW /1E6;
-		}
-
-		char current_temp_str[10], target_temp_str[10], voltage_str[10], current_str[10], power_str[10];
-		short current_temp_str_nr, target_temp_str_nr, voltage_str_nr, current_str_nr, power_str_nr;
+		u8g2_ClearBuffer(&u8g2);
+		menu15();
+		char target_temp_str[10];
+		short target_temp_str_nr;
 		short pwm_pixels = 40;
 		short pwm = fabs(temp_controller.pid.out);
-
-		current_temp_str_nr = ftoa(temp_controller.current_temp, current_temp_str, 2);
 		target_temp_str_nr = ftoa(temp_controller.target_temp/10.0, target_temp_str, 1);
-		voltage_str_nr = ftoa(temp_controller.voltage, voltage_str, 1);
 		current_str_nr = ftoa(temp_controller.current, current_str, 1);
 		power_str_nr = ftoa(temp_controller.power, power_str, 1);
-
-		u8g2_ClearBuffer(&u8g2);
-		u8g2_SetDrawColor(&u8g2, 1);
-		u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
-		u8g2_DrawUTF8(&u8g2, -1, 14, "Curr.");
-		u8g2_DrawUTF8(&u8g2, 0, 26, "temp.:");
-		u8g2_SetFont(&u8g2, u8g2_font_logisoso20_tf);
-		if(temp_controller.current_temp<0) u8g2_DrawUTF8(&u8g2, 36, 20, "-"); //"-" sign
-		u8g2_DrawUTF8(&u8g2, 48, 26, current_temp_str);
-		u8g2_DrawUTF8(&u8g2, 48+current_temp_str_nr*15, 26, "°C");
 		u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
 		u8g2_DrawUTF8(&u8g2, 0, 46, "Set.");
 		u8g2_DrawUTF8(&u8g2, 0, 58, "temp.:");
@@ -79,13 +62,34 @@ void Redraw_display(){
 		break;
 	case 5:
 		u8g2_ClearBuffer(&u8g2);
-		char maxP_str[10];
 		ftoa(temp_controller.pid.max_P, maxP_str, 0);
 		u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
 		u8g2_DrawUTF8(&u8g2, 10, 14, "max P: ");
 		u8g2_DrawUTF8(&u8g2, 64, 14, maxP_str);
 		u8g2_DrawUTF8(&u8g2, 0, 14, "*");
 		u8g2_DrawUTF8(&u8g2, 88, 14, "%");
+		u8g2_SendBuffer(&u8g2);
+		break;
+	case SET_P_MENU:
+		u8g2_ClearBuffer(&u8g2);
+		menu15();
+		char target_P_str[10];
+		short target_P_str_nr;
+		target_P_str_nr = ftoa(temp_controller.set_power, target_P_str, 0);
+		current_str_nr = ftoa(temp_controller.current, current_str, 2);
+		power_str_nr = ftoa(temp_controller.power, power_str, 2);
+		u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf);
+		u8g2_DrawUTF8(&u8g2, 0, 58, "P:");
+		u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf);	//The display has limited space
+		u8g2_DrawUTF8(&u8g2, 30, 58, target_P_str);
+		u8g2_DrawUTF8(&u8g2, 26+target_P_str_nr*14, 58, "%");
+		u8g2_SetFont(&u8g2, u8g2_font_helvR08_te     );
+		u8g2_DrawUTF8(&u8g2, 70, 46, "I:");
+		u8g2_DrawUTF8(&u8g2, 80, 46, current_str);
+		u8g2_DrawUTF8(&u8g2, 80+current_str_nr*8, 46, "A");
+		u8g2_DrawUTF8(&u8g2, 66, 58, "P:");
+		u8g2_DrawUTF8(&u8g2, 80, 58, power_str);
+		u8g2_DrawUTF8(&u8g2, 80+power_str_nr*8, 58, "W");
 		u8g2_SendBuffer(&u8g2);
 		break;
 	case SET_DEFAULTS_MENU:
@@ -108,6 +112,32 @@ void set_defaults(){
 	temp_controller.pid.Kd=10000;
 	temp_controller.pid.Ki=5;
 	temp_controller.pid.max_P = 80;
+}
+
+void menu15(){
+	char current_temp_str[10];
+	short current_temp_str_nr;
+
+	if(INA226_1.Result.Current_uA 	>= 	INA226_2.Result.Current_uA) {
+		temp_controller.current	= 	INA226_1.Result.Current_uA/1E6;
+		temp_controller.power 	= 	INA226_1.Result.Power_uW /1E6;
+	}
+	else {
+		temp_controller.current =	INA226_2.Result.Current_uA/1E6;
+		temp_controller.power 	= 	INA226_2.Result.Power_uW /1E6;
+	}
+
+	current_temp_str_nr = ftoa(temp_controller.current_temp, current_temp_str, 2);
+	u8g2_SetDrawColor(&u8g2, 1);
+	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
+	u8g2_DrawUTF8(&u8g2, -1, 14, "Curr.");
+	u8g2_DrawUTF8(&u8g2, 0, 26, "temp.:");
+	u8g2_SetFont(&u8g2, u8g2_font_logisoso20_tf);
+	if(temp_controller.current_temp<0) u8g2_DrawUTF8(&u8g2, 36, 20, "-"); //"-" sign
+	u8g2_DrawUTF8(&u8g2, 48, 26, current_temp_str);
+	u8g2_DrawUTF8(&u8g2, 48+current_temp_str_nr*15, 26, "°C");
+
+
 }
 
 void menu234(){

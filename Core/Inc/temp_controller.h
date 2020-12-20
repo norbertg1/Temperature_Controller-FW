@@ -18,13 +18,14 @@
 #define ADC_BUF_LEN				2
 #define ROTARY_FAST				20 // [ms] rotary speed fast
 #define ROTARY_SLOW				200 // [ms] rotary speed slow
-#define MENU_MAX				7
+#define MENU_MAX				8
 #define SET_Kp_MENU				2
 #define SET_Kd_MENU				3
 #define SET_Ki_MENU				4
-#define SET_P_MENU				5
-#define SET_DEFAULTS_MENU		6
-#define SNAKE_MENU				7
+#define SET_MAX_P_MENU			5
+#define SET_P_MENU				6
+#define SET_DEFAULTS_MENU		7
+#define SNAKE_MENU				8
 #define ADC_AVARAGE				50
 #define LONG_PRESS				3000
 #define LONG_LONG_PRESS			5000
@@ -64,6 +65,7 @@ typedef struct    {
 	float power;
 	short menu;
 	short defaults;
+	short set_power;
 	PID	  pid;
 } temperature_controller_data;
 

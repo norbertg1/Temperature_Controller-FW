@@ -51,14 +51,14 @@ void update_pid(){
 	if(temp_controller.pid.errorSum < -200) temp_controller.pid.errorSum=-200;
 	if(temp_controller.pid.out > temp_controller.pid.max_P) temp_controller.pid.out = temp_controller.pid.max_P;
 	if(temp_controller.pid.out < 0) temp_controller.pid.out = 0; 					//The hardware doesnt support heating
-	set_duty_cycle(temp_controller.pid.out);
+	if (temp_controller.menu != SET_P_MENU)  set_duty_cycle(temp_controller.pid.out);
 	t=HAL_GetTick();
 	last_t[cnt++]=temp_controller.pid.delta_t*1000;
 	if (cnt==99) cnt=0;
 }
 
 void read_flash(){
-	flash_ReadN(0,&temp_controller.target_temp,14,DATA_TYPE_32);
+	flash_ReadN(0,&temp_controller.target_temp,15,DATA_TYPE_32);
 	temp_controller.menu = 1;
 	temp_controller.pid.errorSum = 0;
 	Redraw_display();

@@ -60,6 +60,7 @@ float *get_rotating_menu_item(temperature_controller_data* controller){
 	if(controller->menu==3)	return	&controller->pid.Kd;
 	if(controller->menu==4)	return	&controller->pid.Ki;
 	if(controller->menu==5)	return	&controller->pid.max_P;
+	if(controller->menu==6)	return	&controller->set_power;
 }
 
 void rotate(int value, int* ptr){
@@ -92,6 +93,7 @@ void encoder (uint16_t GPIO_Pin){
 		}
 
 		if((HAL_GetTick()-last_time) > SHORT_PRESS)  temp_controller.menu++;
+		if(temp_controller.menu == SET_P_MENU) temp_controller.set_power=0;
 		if(temp_controller.menu > MENU_MAX-1) temp_controller.menu=1;
 		last_time = HAL_GetTick();
 		break;
@@ -99,7 +101,7 @@ void encoder (uint16_t GPIO_Pin){
 		if(HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_B_Pin))	{
 			float change_slow=1;
 			short change_fast=10;
-			if(temp_controller.menu == SET_P_MENU) {
+			if(temp_controller.menu == SET_MAX_P_MENU && temp_controller.menu == SET_P_MENU) {
 				change_slow=1;
 				change_fast=2;
 			}
@@ -115,7 +117,8 @@ void encoder (uint16_t GPIO_Pin){
 			else if((HAL_GetTick()-last_time) > ROTARY_FAST)	rotate(-change_fast,ptr);
 			else												break;
 			temp_controller.defaults = 0;
-			flash_WriteN(0, &temp_controller.target_temp,7,DATA_TYPE_64);
+			flash_WriteN(0, &temp_controller.target_temp,8,DATA_TYPE_64);
+			if(temp_controller.menu == SET_P_MENU)	set_duty_cycle(temp_controller.set_power);
 			last_time = HAL_GetTick();
 		}
 		break;
@@ -123,7 +126,7 @@ void encoder (uint16_t GPIO_Pin){
 		if(HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_A_Pin))	{
 			float change_slow=1;
 			short change_fast=10;
-			if(temp_controller.menu == SET_P_MENU) {
+			if(temp_controller.menu == SET_MAX_P_MENU && temp_controller.menu == SET_P_MENU) {
 				change_slow=1;
 				change_fast=2;
 			}
@@ -139,7 +142,8 @@ void encoder (uint16_t GPIO_Pin){
 			else if((HAL_GetTick()-last_time) > ROTARY_FAST)	rotate(change_fast,ptr);
 			else												break;
 			temp_controller.defaults = 0;
-			flash_WriteN(0, &temp_controller.target_temp,7,DATA_TYPE_64);
+			flash_WriteN(0, &temp_controller.target_temp,8,DATA_TYPE_64);
+			if(temp_controller.menu == SET_P_MENU)	set_duty_cycle(temp_controller.set_power);
 			last_time = HAL_GetTick();
 		}
 		break;
