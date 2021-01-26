@@ -18,6 +18,7 @@ short cnt_adc=0;
 
 void set_duty_cycle(float percent){
 	int set_pwm = (PWM_COUNTER_PERIOD/100.0)*percent;
+	if(temp_controller.menu == TOO_HOT_MENU) set_pwm = 0;
 	TIM2->CCR1=set_pwm;
 	TIM2->CCR2=set_pwm;
 }
@@ -40,17 +41,12 @@ void update_pid(){
 	}*/
 	//temp_controller.pid.errorSum = temp_controller.pid.errorSum * (9.0/10.0);
 	temp_controller.target_temp = round(temp_controller.target_temp*10)/10;
-	static int i = 0;
-	static float x[100],temp[100],e[100];
-	e[i] = error;
-	x[i]= 0.05*error;
-	temp[i++] = temp_controller.current_temp;
-	if(i>98) i=0;
 	temp_controller.pid.errorSum += 0.05*error;
 	if(temp_controller.pid.errorSum > 200) temp_controller.pid.errorSum=200;
 	if(temp_controller.pid.errorSum < -200) temp_controller.pid.errorSum=-200;
 	if(temp_controller.pid.out > temp_controller.pid.max_P) temp_controller.pid.out = temp_controller.pid.max_P;
 	if(temp_controller.pid.out < 0) temp_controller.pid.out = 0; 					//The hardware doesnt support heating
+	if(temp_controller.current_temp > CUT_OFF_TEMP)	temp_controller.menu = 9;
 	if (temp_controller.menu != SET_P_MENU)  set_duty_cycle(temp_controller.pid.out);
 	t=HAL_GetTick();
 	last_t[cnt++]=temp_controller.pid.delta_t*1000;

@@ -101,6 +101,14 @@ void Redraw_display(){
 		if(temp_controller.defaults) u8g2_DrawUTF8(&u8g2, 80, 42, "OK");
 		u8g2_SendBuffer(&u8g2);
 		break;
+	case TOO_HOT_MENU:
+		u8g2_ClearBuffer(&u8g2);
+		u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
+		u8g2_DrawUTF8(&u8g2, 0, 32, "WARNING!!!");
+		u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
+		u8g2_DrawUTF8(&u8g2, 32, 16, "Peltier is too hot!");
+		u8g2_SendBuffer(&u8g2);
+		break;
 	}
 }
 

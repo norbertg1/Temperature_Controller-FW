@@ -26,6 +26,8 @@
 #define SET_P_MENU				6
 #define SET_DEFAULTS_MENU		7
 #define SNAKE_MENU				8
+#define TOO_HOT_MENU			9		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.
+#define CUT_OFF_TEMP			40		//Its happens when the Peltier reaches this temperature in °C
 #define ADC_AVARAGE				50
 #define LONG_PRESS				3000
 #define LONG_LONG_PRESS			5000
