@@ -46,7 +46,7 @@ void update_pid(){
 	if(temp_controller.pid.errorSum < -200) temp_controller.pid.errorSum=-200;
 	if(temp_controller.pid.out > temp_controller.pid.max_P) temp_controller.pid.out = temp_controller.pid.max_P;
 	if(temp_controller.pid.out < 0) temp_controller.pid.out = 0; 					//The hardware doesnt support heating
-	if(temp_controller.current_temp > CUT_OFF_TEMP)	temp_controller.menu = 9;
+	if(temp_controller.current_temp > CUT_OFF_TEMP)	temp_controller.menu = TOO_HOT_MENU;
 	if (temp_controller.menu != SET_P_MENU)  set_duty_cycle(temp_controller.pid.out);
 	t=HAL_GetTick();
 	last_t[cnt++]=temp_controller.pid.delta_t*1000;

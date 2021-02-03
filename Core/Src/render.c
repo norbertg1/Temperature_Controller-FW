@@ -81,8 +81,8 @@ void Redraw_display(){
 		u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf);
 		u8g2_DrawUTF8(&u8g2, 0, 58, "P:");
 		u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf);	//The display has limited space
-		u8g2_DrawUTF8(&u8g2, 30, 58, target_P_str);
-		u8g2_DrawUTF8(&u8g2, 26+target_P_str_nr*14, 58, "%");
+		u8g2_DrawUTF8(&u8g2, 20, 58, target_P_str);
+		u8g2_DrawUTF8(&u8g2, 16+target_P_str_nr*12, 58, "%");
 		u8g2_SetFont(&u8g2, u8g2_font_helvR08_te     );
 		u8g2_DrawUTF8(&u8g2, 70, 46, "I:");
 		u8g2_DrawUTF8(&u8g2, 80, 46, current_str);
@@ -103,10 +103,10 @@ void Redraw_display(){
 		break;
 	case TOO_HOT_MENU:
 		u8g2_ClearBuffer(&u8g2);
-		u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
-		u8g2_DrawUTF8(&u8g2, 0, 32, "WARNING!!!");
-		u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
-		u8g2_DrawUTF8(&u8g2, 32, 16, "Peltier is too hot!");
+		u8g2_SetFont(&u8g2, u8g2_font_fur14_tf    );
+		u8g2_DrawUTF8(&u8g2, 8, 24, "WARNING!!!");
+		u8g2_SetFont(&u8g2, u8g2_font_luRS08_tr       );
+		u8g2_DrawUTF8(&u8g2, 16, 48, "Peltier is too hot!");
 		u8g2_SendBuffer(&u8g2);
 		break;
 	}

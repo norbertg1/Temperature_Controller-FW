@@ -61,6 +61,7 @@ float *get_rotating_menu_item(temperature_controller_data* controller){
 	if(controller->menu==4)	return	&controller->pid.Ki;
 	if(controller->menu==5)	return	&controller->pid.max_P;
 	if(controller->menu==6)	return	&controller->set_power;
+	return &controller->dummy;
 }
 
 void rotate(int value, int* ptr){
@@ -118,7 +119,10 @@ void encoder (uint16_t GPIO_Pin){
 			else												break;
 			temp_controller.defaults = 0;
 			flash_WriteN(0, &temp_controller.target_temp,8,DATA_TYPE_64);
-			if(temp_controller.menu == SET_P_MENU)	set_duty_cycle(temp_controller.set_power);
+			if(temp_controller.menu == SET_P_MENU)	{
+				set_duty_cycle(temp_controller.set_power);
+				if(temp_controller.set_power<0) temp_controller.set_power = 0;
+			}
 			last_time = HAL_GetTick();
 		}
 		break;
@@ -143,7 +147,10 @@ void encoder (uint16_t GPIO_Pin){
 			else												break;
 			temp_controller.defaults = 0;
 			flash_WriteN(0, &temp_controller.target_temp,8,DATA_TYPE_64);
-			if(temp_controller.menu == SET_P_MENU)	set_duty_cycle(temp_controller.set_power);
+			if(temp_controller.menu == SET_P_MENU)	{
+				if(temp_controller.set_power >100) temp_controller.set_power = 100;
+				set_duty_cycle(temp_controller.set_power);
+			}
 			last_time = HAL_GetTick();
 		}
 		break;

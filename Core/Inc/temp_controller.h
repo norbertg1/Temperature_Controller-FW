@@ -68,6 +68,7 @@ typedef struct    {
 	short menu;
 	short defaults;
 	short set_power;
+	short dummy;
 	PID	  pid;
 } temperature_controller_data;
 
