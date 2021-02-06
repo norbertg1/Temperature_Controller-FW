@@ -47,7 +47,7 @@ void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef* hsdadc){
 		HAL_SDADC_Stop_DMA(&hsdadc1);
 		HAL_SDADC_Stop_DMA(&hsdadc2);
 		calc_adc_values();
-		update_pid();
+		if(temp_controller.menu != STARTUP_MENU)	update_pid();
 	}
 }
 
@@ -82,7 +82,6 @@ float lookup_temp(float R){
     T=lookup_temp_table[i][0]+(R-lookup_temp_table[i][1])*deltaT/deltaR;
     return T;
 }
-
 
 
 //Interrupt function called on button press

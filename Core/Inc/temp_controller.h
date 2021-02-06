@@ -19,6 +19,7 @@
 #define ROTARY_FAST				20 // [ms] rotary speed fast
 #define ROTARY_SLOW				200 // [ms] rotary speed slow
 #define MENU_MAX				8
+#define STARTUP_MENU			0
 #define SET_Kp_MENU				2
 #define SET_Kd_MENU				3
 #define SET_Ki_MENU				4

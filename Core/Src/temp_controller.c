@@ -36,10 +36,7 @@ void update_pid(){
 			temp_controller.pid.Kp/10.0 * error
 			+ temp_controller.pid.Kd/10.0 * d_error * temp_controller.pid.delta_t
 			+ temp_controller.pid.Ki/10.0 * temp_controller.pid.errorSum);
-	/*if(fabs(temp_controller.pid.errorSum) < 100) {
-		temp_controller.pid.errorSum += error;
-	}*/
-	//temp_controller.pid.errorSum = temp_controller.pid.errorSum * (9.0/10.0);
+
 	temp_controller.target_temp = round(temp_controller.target_temp*10)/10;
 	temp_controller.pid.errorSum += 0.05*error;
 	if(temp_controller.pid.errorSum > 200) temp_controller.pid.errorSum=200;
@@ -55,7 +52,9 @@ void update_pid(){
 
 void read_flash(){
 	flash_ReadN(0,&temp_controller.target_temp,15,DATA_TYPE_32);
-	temp_controller.menu = 1;
+	set_duty_cycle(0);
+	temp_controller.pid.out = 0;
+	temp_controller.menu = 0;
 	temp_controller.pid.errorSum = 0;
 	Redraw_display();
 }

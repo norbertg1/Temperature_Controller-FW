@@ -15,34 +15,11 @@ void Redraw_display(){
 	short current_str_nr, power_str_nr;
 	switch(temp_controller.menu)
 	{
+	case 0:
+		menu1();
+		break;
 	case 1:
-		u8g2_ClearBuffer(&u8g2);
-		menu15();
-		char target_temp_str[10];
-		short target_temp_str_nr;
-		short pwm_pixels = 40;
-		short pwm = fabs(temp_controller.pid.out);
-		target_temp_str_nr = ftoa(temp_controller.target_temp/10.0, target_temp_str, 1);
-		current_str_nr = ftoa(temp_controller.current, current_str, 1);
-		power_str_nr = ftoa(temp_controller.power, power_str, 1);
-		u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
-		u8g2_DrawUTF8(&u8g2, 0, 46, "Set.");
-		u8g2_DrawUTF8(&u8g2, 0, 58, "temp.:");
-		u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf);	//The display has limited space
-		if(temp_controller.target_temp<0) u8g2_DrawUTF8(&u8g2, 22, 52, "-");
-		u8g2_DrawUTF8(&u8g2, 30, 58, target_temp_str);
-		u8g2_DrawUTF8(&u8g2, 26+target_temp_str_nr*14, 58, "°C");
-		u8g2_SetFont(&u8g2, u8g2_font_helvR08_te     );
-		u8g2_DrawUTF8(&u8g2, 90, 46, "I:");
-		u8g2_DrawUTF8(&u8g2, 100, 46, current_str);
-		u8g2_DrawUTF8(&u8g2, 100+current_str_nr*8, 46, "A");
-		u8g2_DrawUTF8(&u8g2, 86, 58, "P:");
-		u8g2_DrawUTF8(&u8g2, 100, 58, power_str);
-		u8g2_DrawUTF8(&u8g2, 100+power_str_nr*8, 58, "W");
-		u8g2_SetDrawColor(&u8g2,2);
-		u8g2_DrawHLine(&u8g2, 78, 33, (pwm/100.0)*pwm_pixels);
-		u8g2_DrawHLine(&u8g2, 78, 32, (pwm/100.0)*pwm_pixels);
-		u8g2_SendBuffer(&u8g2);
+		menu1();
 		break;
 
 	case 2:
@@ -120,6 +97,38 @@ void set_defaults(){
 	temp_controller.pid.Kd=10000;
 	temp_controller.pid.Ki=5;
 	temp_controller.pid.max_P = 80;
+}
+
+void menu1(){
+	char current_str[10], power_str[10];
+	short current_str_nr, power_str_nr;
+	u8g2_ClearBuffer(&u8g2);
+	menu15();
+	char target_temp_str[10];
+	short target_temp_str_nr;
+	short pwm_pixels = 40;
+	short pwm = fabs(temp_controller.pid.out);
+	target_temp_str_nr = ftoa(temp_controller.target_temp/10.0, target_temp_str, 1);
+	current_str_nr = ftoa(temp_controller.current, current_str, 1);
+	power_str_nr = ftoa(temp_controller.power, power_str, 1);
+	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
+	u8g2_DrawUTF8(&u8g2, 0, 46, "Set.");
+	u8g2_DrawUTF8(&u8g2, 0, 58, "temp.:");
+	u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf);	//The display has limited space
+	if(temp_controller.target_temp<0) u8g2_DrawUTF8(&u8g2, 22, 52, "-");
+	u8g2_DrawUTF8(&u8g2, 30, 58, target_temp_str);
+	u8g2_DrawUTF8(&u8g2, 26+target_temp_str_nr*14, 58, "°C");
+	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te     );
+	u8g2_DrawUTF8(&u8g2, 90, 46, "I:");
+	u8g2_DrawUTF8(&u8g2, 100, 46, current_str);
+	u8g2_DrawUTF8(&u8g2, 100+current_str_nr*8, 46, "A");
+	u8g2_DrawUTF8(&u8g2, 86, 58, "P:");
+	u8g2_DrawUTF8(&u8g2, 100, 58, power_str);
+	u8g2_DrawUTF8(&u8g2, 100+power_str_nr*8, 58, "W");
+	u8g2_SetDrawColor(&u8g2,2);
+	u8g2_DrawHLine(&u8g2, 78, 33, (pwm/100.0)*pwm_pixels);
+	u8g2_DrawHLine(&u8g2, 78, 32, (pwm/100.0)*pwm_pixels);
+	u8g2_SendBuffer(&u8g2);
 }
 
 void menu15(){
