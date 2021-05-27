@@ -31,7 +31,7 @@
 #define SET_DEFAULTS_MENU		9
 #define SNAKE_MENU				10
 #define TOO_HOT_MENU			11		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.
-#define CUT_OFF_TEMP			40		//Its happens when the Peltier reaches this temperature in °C
+#define CUT_OFF_TEMP			80		//Its happens when the Peltier reaches this temperature in °C
 #define ADC_AVARAGE				50
 #define LONG_PRESS				3000
 #define LONG_LONG_PRESS			5000
@@ -83,17 +83,12 @@ typedef struct BMP280_data{
 	float pressure;
 	float humidity;	//BMP280 not support it
 }BMP280_data;
-/*
+
 enum sensors{
 	NTCS0603E3222FMT = 1,
-	NTCG163JX103DTDS = 2
-};*/
-
-/*typedef enum {
-    CAN_250000_BAUD = 0,
-    CAN_500000_BAUD = 1,
-    CAN_1000000_BAUD = 2,
-} CAN_BAUD_T;*/
+	NTCG163JX103DTDS = 2,
+	thermistor_count = 2
+};
 
 extern short cnt_adc;
 extern temperature_controller_data temp_controller;

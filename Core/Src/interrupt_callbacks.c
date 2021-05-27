@@ -69,9 +69,17 @@ float lookup_temp(float R){
     int size, i = 0;
     float deltaT,deltaR,T;
     int (*lookup_temp_table)[2];
-    if(temp_controller.sensor == 1)
-    lookup_temp_table = NTCG163JX103DTDS_RT;
-    size = sizeof(NTCG163JX103DTDS_RT);
+    switch(temp_controller.sensor)
+    {
+    case NTCS0603E3222FMT:
+    	lookup_temp_table = NTCS0603E3222FMT_RT;
+    	size = sizeof(NTCS0603E3222FMT_RT);
+    	break;
+    case NTCG163JX103DTDS:
+    	lookup_temp_table = NTCG163JX103DTDS_RT;
+    	size = sizeof(NTCG163JX103DTDS_RT);
+    	break;
+    }
     int x,y;
     while(R<lookup_temp_table[i][1]){
     	i++;

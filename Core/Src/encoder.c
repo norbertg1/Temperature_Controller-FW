@@ -124,7 +124,7 @@ void encoder (uint16_t GPIO_Pin){
 			else if((HAL_GetTick()-last_time) > ROTARY_FAST)	rotate(-change_fast,ptr);
 			else												break;
 			if(temp_controller.mode <= -1)	temp_controller.mode = -1;
-			if(temp_controller.sensor < 1)	temp_controller.sensor = 2;
+			if(temp_controller.sensor < 1)	temp_controller.sensor = thermistor_count;
 			temp_controller.defaults = 0;
 			flash_WriteN(0, &temp_controller.target_temp,10,DATA_TYPE_64);
 			if(temp_controller.menu == SET_P_MENU)	{
@@ -158,7 +158,7 @@ void encoder (uint16_t GPIO_Pin){
 			else if((HAL_GetTick()-last_time) > ROTARY_FAST)	rotate(change_fast,ptr);
 			else												break;
 			if(temp_controller.mode >= 1)	temp_controller.mode = 1;
-			if(temp_controller.sensor > 2)	temp_controller.sensor = 1;
+			if(temp_controller.sensor > thermistor_count)	temp_controller.sensor = 1;
 			temp_controller.defaults = 0;
 			flash_WriteN(0, &temp_controller.target_temp,10,DATA_TYPE_64);
 			if(temp_controller.menu == SET_P_MENU)	{

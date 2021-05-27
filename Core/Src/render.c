@@ -198,7 +198,7 @@ void menu_options2(){
 	if (temp_controller.mode == 1) u8g2_DrawUTF8(&u8g2, 64, 28, "Heating");
 	u8g2_DrawUTF8(&u8g2, 10, 42, "R: ");
 	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
-	if (temp_controller.sensor == 1)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCS0603E3222");
-	if (temp_controller.sensor == 2)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCG163JX103");
+	if (temp_controller.sensor == NTCS0603E3222FMT)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCS0603E3222");
+	if (temp_controller.sensor == NTCG163JX103DTDS)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCG163JX103");
 	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
 }

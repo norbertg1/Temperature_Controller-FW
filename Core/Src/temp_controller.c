@@ -24,7 +24,6 @@ void set_duty_cycle(float percent){
 }
 
 void update_pid(){
-	//int x = sizeof(CAN_BAUD_T);
 	static uint32_t t,cnt=0, last_t[100];
 	static float prev_error;
 	float error, d_error, delta_t, pid_out;
