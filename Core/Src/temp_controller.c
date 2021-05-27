@@ -24,6 +24,7 @@ void set_duty_cycle(float percent){
 }
 
 void update_pid(){
+	//int x = sizeof(CAN_BAUD_T);
 	static uint32_t t,cnt=0, last_t[100];
 	static float prev_error;
 	float error, d_error, delta_t, pid_out;
@@ -32,7 +33,7 @@ void update_pid(){
 	d_error = error - prev_error;
 	prev_error = error;
 	float kd = temp_controller.pid.Kd/10.0 * d_error * temp_controller.pid.delta_t;
-	temp_controller.pid.out = - (
+	temp_controller.pid.out = temp_controller.mode * (
 			temp_controller.pid.Kp/10.0 * error
 			+ temp_controller.pid.Kd/10.0 * d_error * temp_controller.pid.delta_t
 			+ temp_controller.pid.Ki/10.0 * temp_controller.pid.errorSum);
@@ -43,7 +44,7 @@ void update_pid(){
 	if(temp_controller.pid.errorSum < -200) temp_controller.pid.errorSum=-200;
 	if(temp_controller.pid.out > temp_controller.pid.max_P) temp_controller.pid.out = temp_controller.pid.max_P;
 	if(temp_controller.pid.out < 0) temp_controller.pid.out = 0; 					//The hardware doesnt support heating
-	if(temp_controller.current_temp > CUT_OFF_TEMP)	temp_controller.menu = TOO_HOT_MENU;
+	if(temp_controller.current_temp > CUT_OFF_TEMP && temp_controller.mode == -1)	temp_controller.menu = TOO_HOT_MENU;
 	if (temp_controller.menu != SET_P_MENU)  set_duty_cycle(temp_controller.pid.out);
 	t=HAL_GetTick();
 	last_t[cnt++]=temp_controller.pid.delta_t*1000;

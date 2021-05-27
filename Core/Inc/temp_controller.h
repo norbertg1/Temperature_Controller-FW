@@ -18,16 +18,19 @@
 #define ADC_BUF_LEN				2
 #define ROTARY_FAST				20 // [ms] rotary speed fast
 #define ROTARY_SLOW				200 // [ms] rotary speed slow
-#define MENU_MAX				8
+#define MENU_MAX				10
 #define STARTUP_MENU			0
+#define SET_Temp_MENU			1
 #define SET_Kp_MENU				2
 #define SET_Kd_MENU				3
 #define SET_Ki_MENU				4
 #define SET_MAX_P_MENU			5
-#define SET_P_MENU				6
-#define SET_DEFAULTS_MENU		7
-#define SNAKE_MENU				8
-#define TOO_HOT_MENU			9		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.
+#define SET_MODE_MENU			6	//Heating or cooling
+#define CHOOSE_NTC_MENU			7
+#define SET_P_MENU				8
+#define SET_DEFAULTS_MENU		9
+#define SNAKE_MENU				10
+#define TOO_HOT_MENU			11		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.
 #define CUT_OFF_TEMP			40		//Its happens when the Peltier reaches this temperature in °C
 #define ADC_AVARAGE				50
 #define LONG_PRESS				3000
@@ -69,7 +72,9 @@ typedef struct    {
 	short menu;
 	short defaults;
 	short set_power;
-	short dummy;
+	short dummy;		//if non exist menu is set, step this variable with encoder
+	int mode;			//-1 ---> cooling, 1 ---> heating
+	int sensor;		//NTC sensor choose from flash data
 	PID	  pid;
 } temperature_controller_data;
 
@@ -78,6 +83,17 @@ typedef struct BMP280_data{
 	float pressure;
 	float humidity;	//BMP280 not support it
 }BMP280_data;
+/*
+enum sensors{
+	NTCS0603E3222FMT = 1,
+	NTCG163JX103DTDS = 2
+};*/
+
+/*typedef enum {
+    CAN_250000_BAUD = 0,
+    CAN_500000_BAUD = 1,
+    CAN_1000000_BAUD = 2,
+} CAN_BAUD_T;*/
 
 extern short cnt_adc;
 extern temperature_controller_data temp_controller;

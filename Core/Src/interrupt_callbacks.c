@@ -66,11 +66,16 @@ void calc_adc_values(){
 
 //gives back the temperature based on NTC resistance value, lookup table needed!
 float lookup_temp(float R){
-    int i = 0;
+    int size, i = 0;
     float deltaT,deltaR,T;
+    int (*lookup_temp_table)[2];
+    if(temp_controller.sensor == 1)
+    lookup_temp_table = NTCG163JX103DTDS_RT;
+    size = sizeof(NTCG163JX103DTDS_RT);
+    int x,y;
     while(R<lookup_temp_table[i][1]){
-        i++;
-        if((i+1)==sizeof(lookup_temp_table)/sizeof(int)/2) {
+    	i++;
+        if((i+1)==size/sizeof(int)/2) {
                 deltaT = lookup_temp_table[i][0]-lookup_temp_table[i-1][0];
                 deltaR = lookup_temp_table[i][1]-lookup_temp_table[i-1][1];
                 T=lookup_temp_table[i][0]+(R-lookup_temp_table[i][1])*deltaT/deltaR;

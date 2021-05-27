@@ -11,42 +11,48 @@ void menu15();
 void menu234();
 
 void Redraw_display(){
-	char maxP_str[10], current_str[10], power_str[10];
+	char current_str[10], power_str[10];
 	short current_str_nr, power_str_nr;
 	switch(temp_controller.menu)
 	{
 	case 0:
 		menu1();
 		break;
-	case 1:
+	case SET_Temp_MENU:
 		menu1();
 		break;
 
-	case 2:
-		menu234();
+	case SET_Kp_MENU:
+		menu_options1();
 		u8g2_DrawUTF8(&u8g2, 0, 14, "*");
 		u8g2_SendBuffer(&u8g2);
 		break;
-	case 3:
-		menu234();
+	case SET_Kd_MENU:
+		menu_options1();
 		u8g2_DrawUTF8(&u8g2, 0, 28, "*");
 		u8g2_SendBuffer(&u8g2);
 		break;
-	case 4:
-		menu234();
+	case SET_Ki_MENU:
+		menu_options1();
 		u8g2_DrawUTF8(&u8g2, 0, 42, "*");
 		u8g2_SendBuffer(&u8g2);
 		break;
-	case 5:
-		u8g2_ClearBuffer(&u8g2);
-		ftoa(temp_controller.pid.max_P, maxP_str, 0);
-		u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
-		u8g2_DrawUTF8(&u8g2, 10, 14, "max P: ");
-		u8g2_DrawUTF8(&u8g2, 64, 14, maxP_str);
+	case SET_MAX_P_MENU:
+		menu_options2();
 		u8g2_DrawUTF8(&u8g2, 0, 14, "*");
-		u8g2_DrawUTF8(&u8g2, 88, 14, "%");
 		u8g2_SendBuffer(&u8g2);
 		break;
+	case SET_MODE_MENU:
+		menu_options2();
+		u8g2_DrawUTF8(&u8g2, 0, 28, "*");
+		u8g2_SendBuffer(&u8g2);
+		break;
+	case CHOOSE_NTC_MENU:
+		menu_options2();
+		u8g2_DrawUTF8(&u8g2, 0, 42, "*");
+		u8g2_SendBuffer(&u8g2);
+		break;
+
 	case SET_P_MENU:
 		u8g2_ClearBuffer(&u8g2);
 		menu15();
@@ -97,6 +103,8 @@ void set_defaults(){
 	temp_controller.pid.Kd=10000;
 	temp_controller.pid.Ki=5;
 	temp_controller.pid.max_P = 80;
+	temp_controller.mode = -1;
+	temp_controller.sensor = 1;
 }
 
 void menu1(){
@@ -157,7 +165,7 @@ void menu15(){
 
 }
 
-void menu234(){
+void menu_options1(){
 	//Case Menu = 2,3,4
 	char Kp_str[10], Kd_str[10], Ki_str[10], Ki_t[10];
 	ftoa(temp_controller.pid.Kp/10.0, Kp_str, 1);
@@ -175,4 +183,22 @@ void menu234(){
 	u8g2_DrawUTF8(&u8g2, 10, 56, "∆t: ");
 	u8g2_DrawUTF8(&u8g2, 42, 56, Ki_t);
 	u8g2_DrawUTF8(&u8g2, 90, 56, "ms");
+}
+
+void menu_options2(){
+	char maxP_str[10];
+	u8g2_ClearBuffer(&u8g2);
+	ftoa(temp_controller.pid.max_P, maxP_str, 0);
+	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
+	u8g2_DrawUTF8(&u8g2, 10, 14, "max P: ");
+	u8g2_DrawUTF8(&u8g2, 64, 14, maxP_str);
+	u8g2_DrawUTF8(&u8g2, 88, 14, "%");
+	u8g2_DrawUTF8(&u8g2, 10, 28, "mode: ");
+	if (temp_controller.mode == -1) u8g2_DrawUTF8(&u8g2, 64, 28, "Coolig");
+	if (temp_controller.mode == 1) u8g2_DrawUTF8(&u8g2, 64, 28, "Heating");
+	u8g2_DrawUTF8(&u8g2, 10, 42, "R: ");
+	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
+	if (temp_controller.sensor == 1)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCS0603E3222");
+	if (temp_controller.sensor == 2)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCG163JX103");
+	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
 }
