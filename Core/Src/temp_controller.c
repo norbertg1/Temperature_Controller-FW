@@ -51,12 +51,22 @@ void update_pid(){
 }
 
 void read_flash(){
-	flash_ReadN(0,&temp_controller.target_temp,15,DATA_TYPE_32);
+	uint32_t crc;
+
+	flash_ReadN(0,&temp_controller.target_temp,ceil(sizeof(temp_controller)/8.0),DATA_TYPE_64);
+	crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)temp_controller.target_temp, ceil(sizeof(temp_controller)/4.0));
+	if(crc != temp_controller.crc)	set_defaults();
 	set_duty_cycle(0);
 	temp_controller.pid.out = 0;
 	temp_controller.menu = 0;
 	temp_controller.pid.errorSum = 0;
 	Redraw_display();
+}
+
+void write_flash(){
+	temp_controller.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)temp_controller.target_temp, ceil(sizeof(temp_controller)/4.0));
+	flash_WriteN(0, &temp_controller.target_temp,ceil(sizeof(temp_controller)/8.0),DATA_TYPE_64);
+
 }
 
 void init_bmp280(BMP280_HandleTypedef *bmp280, int BMP280_ADRESS){

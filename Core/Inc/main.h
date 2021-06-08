@@ -64,6 +64,7 @@ extern I2C_HandleTypeDef hi2c1;
 extern INA226 INA226_1,INA226_2;
 extern SDADC_HandleTypeDef hsdadc1;
 extern SDADC_HandleTypeDef hsdadc2;
+extern CRC_HandleTypeDef hcrc;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

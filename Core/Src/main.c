@@ -42,6 +42,8 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 
+CRC_HandleTypeDef hcrc;
+
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
@@ -76,6 +78,7 @@ static void MX_SDADC2_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_TIM12_Init(void);
+static void MX_CRC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -97,8 +100,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-
-	HAL_Init();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -125,6 +127,7 @@ int main(void)
   MX_TIM7_Init();
   MX_TIM6_Init();
   MX_TIM12_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
   //------- SDADC DMA setup ----------------------------------
   HAL_SDADC_CalibrationStart(&hsdadc1, SDADC_CALIBRATION_SEQ_3);
@@ -152,7 +155,6 @@ int main(void)
   u8g2_InitDisplay(&u8g2);
   u8g2_SetPowerSave(&u8g2, 0);
   read_flash();
-  if (isnan(temp_controller.pid.errorSum))	  set_defaults();
   unsigned long t1,delta_t1;
   //temp_controller.pid.Kp = 10;
   int cnt=0;
@@ -291,6 +293,37 @@ static void MX_ADC1_Init(void)
 }
 
 /**
+  * @brief CRC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_CRC_Init(void)
+{
+
+  /* USER CODE BEGIN CRC_Init 0 */
+
+  /* USER CODE END CRC_Init 0 */
+
+  /* USER CODE BEGIN CRC_Init 1 */
+
+  /* USER CODE END CRC_Init 1 */
+  hcrc.Instance = CRC;
+  hcrc.Init.DefaultPolynomialUse = DEFAULT_POLYNOMIAL_ENABLE;
+  hcrc.Init.DefaultInitValueUse = DEFAULT_INIT_VALUE_ENABLE;
+  hcrc.Init.InputDataInversionMode = CRC_INPUTDATA_INVERSION_NONE;
+  hcrc.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
+  hcrc.InputDataFormat = CRC_INPUTDATA_FORMAT_BYTES;
+  if (HAL_CRC_Init(&hcrc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN CRC_Init 2 */
+
+  /* USER CODE END CRC_Init 2 */
+
+}
+
+/**
   * @brief I2C1 Initialization Function
   * @param None
   * @retval None
@@ -405,7 +438,7 @@ static void MX_SDADC1_Init(void)
   hsdadc1.Instance = SDADC1;
   hsdadc1.Init.IdleLowPowerMode = SDADC_LOWPOWER_NONE;
   hsdadc1.Init.FastConversionMode = SDADC_FAST_CONV_DISABLE;
-  hsdadc1.Init.SlowClockMode = SDADC_SLOW_CLOCK_ENABLE;
+  hsdadc1.Init.SlowClockMode = SDADC_SLOW_CLOCK_DISABLE;
   hsdadc1.Init.ReferenceVoltage = SDADC_VREF_EXT;
   if (HAL_SDADC_Init(&hsdadc1) != HAL_OK)
   {
@@ -466,7 +499,7 @@ static void MX_SDADC2_Init(void)
   hsdadc2.Instance = SDADC2;
   hsdadc2.Init.IdleLowPowerMode = SDADC_LOWPOWER_NONE;
   hsdadc2.Init.FastConversionMode = SDADC_FAST_CONV_DISABLE;
-  hsdadc2.Init.SlowClockMode = SDADC_SLOW_CLOCK_ENABLE;
+  hsdadc2.Init.SlowClockMode = SDADC_SLOW_CLOCK_DISABLE;
   hsdadc2.Init.ReferenceVoltage = SDADC_VREF_EXT;
   if (HAL_SDADC_Init(&hsdadc2) != HAL_OK)
   {
@@ -526,7 +559,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = PWM_COUNTER_PERIOD;
+  htim2.Init.Period = 1440;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -633,7 +666,7 @@ static void MX_TIM4_Init(void)
   htim4.Instance = TIM4;
   htim4.Init.Prescaler = 7200;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 50;
+  htim4.Init.Period = 100;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)

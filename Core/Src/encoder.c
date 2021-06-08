@@ -85,7 +85,7 @@ void encoder (uint16_t GPIO_Pin){
 	case ENCODER_PUSH_BUTTON_Pin:
 		if (temp_controller.menu == SET_DEFAULTS_MENU && is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_PRESS)){
 			set_defaults();
-			flash_WriteN(0, &temp_controller.target_temp,10,DATA_TYPE_64);
+			write_flash();
 			last_time = HAL_GetTick();
 			break;
 		}
@@ -126,7 +126,7 @@ void encoder (uint16_t GPIO_Pin){
 			if(temp_controller.mode <= -1)	temp_controller.mode = -1;
 			if(temp_controller.sensor < 1)	temp_controller.sensor = thermistor_count;
 			temp_controller.defaults = 0;
-			flash_WriteN(0, &temp_controller.target_temp,10,DATA_TYPE_64);
+			write_flash();
 			if(temp_controller.menu == SET_P_MENU)	{
 				set_duty_cycle(temp_controller.set_power);
 				if(temp_controller.set_power<0) temp_controller.set_power = 0;
@@ -160,7 +160,7 @@ void encoder (uint16_t GPIO_Pin){
 			if(temp_controller.mode >= 1)	temp_controller.mode = 1;
 			if(temp_controller.sensor > thermistor_count)	temp_controller.sensor = 1;
 			temp_controller.defaults = 0;
-			flash_WriteN(0, &temp_controller.target_temp,10,DATA_TYPE_64);
+			write_flash();
 			if(temp_controller.menu == SET_P_MENU)	{
 				if(temp_controller.set_power >100) temp_controller.set_power = 100;
 				set_duty_cycle(temp_controller.set_power);

@@ -76,6 +76,7 @@ typedef struct    {
 	int mode;			//-1 ---> cooling, 1 ---> heating
 	int sensor;		//NTC sensor choose from flash data
 	PID	  pid;
+	uint32_t crc;
 } temperature_controller_data;
 
 typedef struct BMP280_data{
@@ -111,6 +112,7 @@ void read_bmp280(struct _BMP280_HandleTypedef *, struct BMP280_data *);
 void update_pid();
 void set_defaults();
 void read_flash();
+void write_flash();
 void Redraw_display();
 void menu234();
 
