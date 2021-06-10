@@ -13,7 +13,7 @@ void menu234();
 void Redraw_display(){
 	char current_str[10], power_str[10];
 	short current_str_nr, power_str_nr;
-	switch(temp_controller.menu)
+	switch(temp_controller.flash.menu)
 	{
 	case 0:
 		menu1();
@@ -58,7 +58,7 @@ void Redraw_display(){
 		menu15();
 		char target_P_str[10];
 		short target_P_str_nr;
-		target_P_str_nr = ftoa(temp_controller.set_power, target_P_str, 0);
+		target_P_str_nr = ftoa(temp_controller.flash.set_power, target_P_str, 0);
 		current_str_nr = ftoa(temp_controller.current, current_str, 2);
 		power_str_nr = ftoa(temp_controller.power, power_str, 2);
 		u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf);
@@ -81,7 +81,7 @@ void Redraw_display(){
 		u8g2_DrawUTF8(&u8g2, 0, 14, "For set defaults");
 		u8g2_DrawUTF8(&u8g2, 0, 28, "long press the");
 		u8g2_DrawUTF8(&u8g2, 0, 42, "button!");
-		if(temp_controller.defaults) u8g2_DrawUTF8(&u8g2, 80, 42, "OK");
+		if(temp_controller.flash.defaults) u8g2_DrawUTF8(&u8g2, 80, 42, "OK");
 		u8g2_SendBuffer(&u8g2);
 		break;
 	case TOO_HOT_MENU:
@@ -96,15 +96,15 @@ void Redraw_display(){
 }
 
 void set_defaults(){
-	temp_controller.defaults = 1;
-	temp_controller.target_temp = 0;
-	temp_controller.pid.errorSum = 0;
-	temp_controller.pid.Kp=300;
-	temp_controller.pid.Kd=10000;
-	temp_controller.pid.Ki=5;
-	temp_controller.pid.max_P = 80;
-	temp_controller.mode = -1;
-	temp_controller.sensor = 1;
+	temp_controller.flash.defaults = 1;
+	temp_controller.flash.target_temp = 0;
+	temp_controller.flash.pid.errorSum = 0;
+	temp_controller.flash.pid.Kp=300;
+	temp_controller.flash.pid.Kd=10000;
+	temp_controller.flash.pid.Ki=5;
+	temp_controller.flash.pid.max_P = 80;
+	temp_controller.flash.mode = -1;
+	temp_controller.flash.sensor = 1;
 }
 
 void menu1(){
@@ -115,15 +115,15 @@ void menu1(){
 	char target_temp_str[10];
 	short target_temp_str_nr;
 	short pwm_pixels = 40;
-	short pwm = fabs(temp_controller.pid.out);
-	target_temp_str_nr = ftoa(temp_controller.target_temp/10.0, target_temp_str, 1);
+	short pwm = fabs(temp_controller.flash.pid.out);
+	target_temp_str_nr = ftoa(temp_controller.flash.target_temp/10.0, target_temp_str, 1);
 	current_str_nr = ftoa(temp_controller.current, current_str, 1);
 	power_str_nr = ftoa(temp_controller.power, power_str, 1);
 	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
 	u8g2_DrawUTF8(&u8g2, 0, 46, "Set.");
 	u8g2_DrawUTF8(&u8g2, 0, 58, "temp.:");
 	u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf);	//The display has limited space
-	if(temp_controller.target_temp<0) u8g2_DrawUTF8(&u8g2, 22, 52, "-");
+	if(temp_controller.flash.target_temp<0) u8g2_DrawUTF8(&u8g2, 22, 52, "-");
 	u8g2_DrawUTF8(&u8g2, 30, 58, target_temp_str);
 	u8g2_DrawUTF8(&u8g2, 26+target_temp_str_nr*14, 58, "°C");
 	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te     );
@@ -168,10 +168,10 @@ void menu15(){
 void menu_options1(){
 	//Case Menu = 2,3,4
 	char Kp_str[10], Kd_str[10], Ki_str[10], Ki_t[10];
-	ftoa(temp_controller.pid.Kp/10.0, Kp_str, 1);
-	ftoa(temp_controller.pid.Kd/10.0, Kd_str, 1);
-	ftoa(temp_controller.pid.Ki/10.0, Ki_str, 1);
-	ftoa(temp_controller.pid.delta_t*1000, Ki_t, 1);
+	ftoa(temp_controller.flash.pid.Kp/10.0, Kp_str, 1);
+	ftoa(temp_controller.flash.pid.Kd/10.0, Kd_str, 1);
+	ftoa(temp_controller.flash.pid.Ki/10.0, Ki_str, 1);
+	ftoa(temp_controller.flash.pid.delta_t*1000, Ki_t, 1);
 	u8g2_ClearBuffer(&u8g2);
 	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
 	u8g2_DrawUTF8(&u8g2, 10, 14, "Kp: ");
@@ -188,17 +188,17 @@ void menu_options1(){
 void menu_options2(){
 	char maxP_str[10];
 	u8g2_ClearBuffer(&u8g2);
-	ftoa(temp_controller.pid.max_P, maxP_str, 0);
+	ftoa(temp_controller.flash.pid.max_P, maxP_str, 0);
 	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
 	u8g2_DrawUTF8(&u8g2, 10, 14, "max P: ");
 	u8g2_DrawUTF8(&u8g2, 64, 14, maxP_str);
 	u8g2_DrawUTF8(&u8g2, 88, 14, "%");
 	u8g2_DrawUTF8(&u8g2, 10, 28, "mode: ");
-	if (temp_controller.mode == -1) u8g2_DrawUTF8(&u8g2, 64, 28, "Coolig");
-	if (temp_controller.mode == 1) u8g2_DrawUTF8(&u8g2, 64, 28, "Heating");
+	if (temp_controller.flash.mode == -1) u8g2_DrawUTF8(&u8g2, 64, 28, "Coolig");
+	if (temp_controller.flash.mode == 1) u8g2_DrawUTF8(&u8g2, 64, 28, "Heating");
 	u8g2_DrawUTF8(&u8g2, 10, 42, "R: ");
 	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
-	if (temp_controller.sensor == NTCS0603E3222FMT)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCS0603E3222");
-	if (temp_controller.sensor == NTCG163JX103DTDS)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCG163JX103");
+	if (temp_controller.flash.sensor == NTCS0603E3222FMT)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCS0603E3222");
+	if (temp_controller.flash.sensor == NTCG163JX103DTDS)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCG163JX103");
 	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
 }

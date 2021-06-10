@@ -174,7 +174,7 @@ int main(void)
 		  Redraw_display();
 		  delta_t1 = HAL_GetTick()-t1;
 	  	  }
-	  if(temp_controller.menu == SNAKE_MENU)	snake_start(&u8g2);
+	  if(temp_controller.flash.menu == SNAKE_MENU)	snake_start(&u8g2);
 	  HAL_Delay(1);
   }
 

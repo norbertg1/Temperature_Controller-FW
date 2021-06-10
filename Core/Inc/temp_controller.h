@@ -63,19 +63,23 @@ typedef struct PID{
 	float 	out;
 }PID;
 
-typedef struct    {
+typedef struct flash{
 	int target_temp;
+	short menu;
+	short defaults;
+	short set_power;
+	int mode;			//-1 ---> cooling, 1 ---> heating
+	int sensor;		//NTC sensor choose from flash data
+	PID	  pid;
+}flash;
+
+typedef struct    {
 	float current_temp;
 	float voltage;
 	float current;
 	float power;
-	short menu;
-	short defaults;
-	short set_power;
 	short dummy;		//if non exist menu is set, step this variable with encoder
-	int mode;			//-1 ---> cooling, 1 ---> heating
-	int sensor;		//NTC sensor choose from flash data
-	PID	  pid;
+	flash flash;
 	uint32_t crc;
 } temperature_controller_data;
 

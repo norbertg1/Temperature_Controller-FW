@@ -18,7 +18,7 @@ short cnt_adc=0;
 
 void set_duty_cycle(float percent){
 	int set_pwm = (PWM_COUNTER_PERIOD/100.0)*percent;
-	if(temp_controller.menu == TOO_HOT_MENU) set_pwm = 0;
+	if(temp_controller.flash.menu == TOO_HOT_MENU) set_pwm = 0;
 	TIM2->CCR1=set_pwm;
 	TIM2->CCR2=set_pwm;
 }
@@ -27,45 +27,45 @@ void update_pid(){
 	static uint32_t t,cnt=0, last_t[100];
 	static float prev_error;
 	float error, d_error, delta_t, pid_out;
-	temp_controller.pid.delta_t = (HAL_GetTick()-t)/1000.0;
-	error = temp_controller.target_temp/10.0 - temp_controller.current_temp;
+	temp_controller.flash.pid.delta_t = (HAL_GetTick()-t)/1000.0;
+	error = temp_controller.flash.target_temp/10.0 - temp_controller.current_temp;
 	d_error = error - prev_error;
 	prev_error = error;
-	float kd = temp_controller.pid.Kd/10.0 * d_error * temp_controller.pid.delta_t;
-	temp_controller.pid.out = temp_controller.mode * (
-			temp_controller.pid.Kp/10.0 * error
-			+ temp_controller.pid.Kd/10.0 * d_error * temp_controller.pid.delta_t
-			+ temp_controller.pid.Ki/10.0 * temp_controller.pid.errorSum);
+	float kd = temp_controller.flash.pid.Kd/10.0 * d_error * temp_controller.flash.pid.delta_t;
+	temp_controller.flash.pid.out = temp_controller.flash.mode * (
+			temp_controller.flash.pid.Kp/10.0 * error
+			+ temp_controller.flash.pid.Kd/10.0 * d_error * temp_controller.flash.pid.delta_t
+			+ temp_controller.flash.pid.Ki/10.0 * temp_controller.flash.pid.errorSum);
 
-	temp_controller.target_temp = round(temp_controller.target_temp*10)/10;
-	temp_controller.pid.errorSum += 0.05*error;
-	if(temp_controller.pid.errorSum > 200) temp_controller.pid.errorSum=200;
-	if(temp_controller.pid.errorSum < -200) temp_controller.pid.errorSum=-200;
-	if(temp_controller.pid.out > temp_controller.pid.max_P) temp_controller.pid.out = temp_controller.pid.max_P;
-	if(temp_controller.pid.out < 0) temp_controller.pid.out = 0; 					//The hardware doesnt support heating
-	if(temp_controller.current_temp > CUT_OFF_TEMP && temp_controller.mode == -1)	temp_controller.menu = TOO_HOT_MENU;
-	if (temp_controller.menu != SET_P_MENU)  set_duty_cycle(temp_controller.pid.out);
+	temp_controller.flash.target_temp = round(temp_controller.flash.target_temp*10)/10;
+	temp_controller.flash.pid.errorSum += 0.05*error;
+	if(temp_controller.flash.pid.errorSum > 200) temp_controller.flash.pid.errorSum=200;
+	if(temp_controller.flash.pid.errorSum < -200) temp_controller.flash.pid.errorSum=-200;
+	if(temp_controller.flash.pid.out > temp_controller.flash.pid.max_P) temp_controller.flash.pid.out = temp_controller.flash.pid.max_P;
+	if(temp_controller.flash.pid.out < 0) temp_controller.flash.pid.out = 0; 					//The hardware doesnt support heating
+	if(temp_controller.current_temp > CUT_OFF_TEMP && temp_controller.flash.mode == -1)	temp_controller.flash.menu = TOO_HOT_MENU;
+	if (temp_controller.flash.menu != SET_P_MENU)  set_duty_cycle(temp_controller.flash.pid.out);
 	t=HAL_GetTick();
-	last_t[cnt++]=temp_controller.pid.delta_t*1000;
+	last_t[cnt++]=temp_controller.flash.pid.delta_t*1000;
 	if (cnt==99) cnt=0;
 }
 
 void read_flash(){
 	uint32_t crc;
 
-	flash_ReadN(0,&temp_controller.target_temp,ceil(sizeof(temp_controller)/8.0),DATA_TYPE_64);
-	crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)temp_controller.target_temp, ceil(sizeof(temp_controller)/4.0));
+	flash_ReadN(0,&temp_controller.flash,ceil(sizeof(temp_controller.flash)/8.0),DATA_TYPE_64);
+	crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
 	if(crc != temp_controller.crc)	set_defaults();
 	set_duty_cycle(0);
-	temp_controller.pid.out = 0;
-	temp_controller.menu = 0;
-	temp_controller.pid.errorSum = 0;
+	temp_controller.flash.pid.out = 0;
+	temp_controller.flash.menu = 0;
+	temp_controller.flash.pid.errorSum = 0;
 	Redraw_display();
 }
 
 void write_flash(){
-	temp_controller.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)temp_controller.target_temp, ceil(sizeof(temp_controller)/4.0));
-	flash_WriteN(0, &temp_controller.target_temp,ceil(sizeof(temp_controller)/8.0),DATA_TYPE_64);
+	temp_controller.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
+	flash_WriteN(0, &temp_controller.flash,ceil(sizeof(temp_controller.flash)/8.0),DATA_TYPE_64);
 
 }
 

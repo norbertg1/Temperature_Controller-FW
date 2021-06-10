@@ -47,7 +47,7 @@ void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef* hsdadc){
 		HAL_SDADC_Stop_DMA(&hsdadc1);
 		HAL_SDADC_Stop_DMA(&hsdadc2);
 		calc_adc_values();
-		if(temp_controller.menu != STARTUP_MENU)	update_pid();
+		if(temp_controller.flash.menu != STARTUP_MENU)	update_pid();
 	}
 }
 
@@ -69,7 +69,7 @@ float lookup_temp(float R){
     int size, i = 0;
     float deltaT,deltaR,T;
     int (*lookup_temp_table)[2];
-    switch(temp_controller.sensor)
+    switch(temp_controller.flash.sensor)
     {
     case NTCS0603E3222FMT:
     	lookup_temp_table = NTCS0603E3222FMT_RT;
