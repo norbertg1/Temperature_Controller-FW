@@ -138,9 +138,8 @@ int main(void)
   HAL_SDADC_PollForCalibEvent(&hsdadc2, HAL_MAX_DELAY);
   HAL_SDADC_Start_DMA(&hsdadc2, (uint32_t*) &adc_buf[1], 1);
   //-----INA sensors setup ----
-  status result1,result2;
-  result1 = INA226_Init(&INA226_1, &hi2c2, INA226_ADRESS_0,0.033,2);	//1.5A max
-  result2 = INA226_Init(&INA226_2, &hi2c2, INA226_ADRESS_1,0.033,6);	//5A max
+  INA226_Init(&INA226_1, &hi2c2, INA226_ADRESS_0,0.033,2);	//1.5A max
+  INA226_Init(&INA226_2, &hi2c2, INA226_ADRESS_1,0.033,6);	//5A max
   //--------------- PWM --------------------------------
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);				//PWM
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);				//PWM
@@ -158,8 +157,6 @@ int main(void)
   Redraw_display();
 
   //main cycle
-  unsigned long t1,delta_t1;
-  int cnt=0;
   while(1){
 	  if(flag_10ms){
 		  flag_10ms=0;
@@ -172,9 +169,7 @@ int main(void)
 	  if(flag_200ms){
 		  flag_200ms=0;
 		  //blink();
-		  t1 = HAL_GetTick();
 		  Redraw_display();
-		  delta_t1 = HAL_GetTick()-t1;
 	  	  }
 	  if(temp_controller.flash.menu == SNAKE_MENU)	snake_start(&u8g2);
 	  HAL_Delay(1);
@@ -186,7 +181,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint32_t t, delta_t;
   while (1)
   {
     /* USER CODE END WHILE */
