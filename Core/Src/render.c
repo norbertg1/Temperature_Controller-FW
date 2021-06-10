@@ -52,6 +52,11 @@ void Redraw_display(){
 		u8g2_DrawUTF8(&u8g2, 0, 42, "*");
 		u8g2_SendBuffer(&u8g2);
 		break;
+	case CHOOSE_FREQUENCY_MENU:
+		menu_options2();
+		u8g2_DrawUTF8(&u8g2, 0, 56, "*");
+		u8g2_SendBuffer(&u8g2);
+		break;
 
 	case SET_P_MENU:
 		u8g2_ClearBuffer(&u8g2);
@@ -105,6 +110,7 @@ void set_defaults(){
 	temp_controller.flash.pid.max_P = 80;
 	temp_controller.flash.mode = -1;
 	temp_controller.flash.sensor = 1;
+	temp_controller.flash.freq = 50;
 }
 
 void menu1(){
@@ -186,9 +192,10 @@ void menu_options1(){
 }
 
 void menu_options2(){
-	char maxP_str[10];
+	char maxP_str[10], freq_str[10];
 	u8g2_ClearBuffer(&u8g2);
 	ftoa(temp_controller.flash.pid.max_P, maxP_str, 0);
+	ftoa(temp_controller.flash.freq, freq_str, 0);
 	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
 	u8g2_DrawUTF8(&u8g2, 10, 14, "max P: ");
 	u8g2_DrawUTF8(&u8g2, 64, 14, maxP_str);
@@ -196,9 +203,13 @@ void menu_options2(){
 	u8g2_DrawUTF8(&u8g2, 10, 28, "mode: ");
 	if (temp_controller.flash.mode == -1) u8g2_DrawUTF8(&u8g2, 64, 28, "Coolig");
 	if (temp_controller.flash.mode == 1) u8g2_DrawUTF8(&u8g2, 64, 28, "Heating");
-	u8g2_DrawUTF8(&u8g2, 10, 42, "R: ");
+	u8g2_DrawUTF8(&u8g2, 10, 42, "Rt: ");
 	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
 	if (temp_controller.flash.sensor == NTCS0603E3222FMT)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCS0603E3222");
 	if (temp_controller.flash.sensor == NTCG163JX103DTDS)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCG163JX103");
 	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
+	u8g2_DrawUTF8(&u8g2, 10, 56, "Freq.: ");
+	u8g2_DrawUTF8(&u8g2, 64, 56, freq_str);
+	u8g2_DrawUTF8(&u8g2, 92, 56, "kHz");
+
 }

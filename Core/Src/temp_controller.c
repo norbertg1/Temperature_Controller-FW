@@ -17,7 +17,7 @@ struct _BMP280_HandleTypedef bmp280;
 short cnt_adc=0;
 
 void set_duty_cycle(float percent){
-	int set_pwm = (PWM_COUNTER_PERIOD/100.0)*percent;
+	int set_pwm = (temp_controller.pwm_counter_period/100.0)*percent;
 	if(temp_controller.flash.menu == TOO_HOT_MENU) set_pwm = 0;
 	TIM2->CCR1=set_pwm;
 	TIM2->CCR2=set_pwm;
@@ -53,19 +53,19 @@ void update_pid(){
 void read_flash(){
 	uint32_t crc;
 
-	flash_ReadN(0,&temp_controller.flash,ceil(sizeof(temp_controller.flash)/8.0),DATA_TYPE_64);
+	flash_ReadN(0,&temp_controller.flash,ceil((sizeof(temp_controller.flash)+4)/8.0),DATA_TYPE_64);
 	crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
 	if(crc != temp_controller.crc)	set_defaults();
 	set_duty_cycle(0);
 	temp_controller.flash.pid.out = 0;
 	temp_controller.flash.menu = 0;
 	temp_controller.flash.pid.errorSum = 0;
-	Redraw_display();
+	temp_controller.pwm_counter_period = (HAL_RCC_GetSysClockFreq()/1E3)/temp_controller.flash.freq;
 }
 
 void write_flash(){
 	temp_controller.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
-	flash_WriteN(0, &temp_controller.flash,ceil(sizeof(temp_controller.flash)/8.0),DATA_TYPE_64);
+	flash_WriteN(0, &temp_controller.flash,ceil((sizeof(temp_controller.flash)+4)/8.0),DATA_TYPE_64);
 
 }
 

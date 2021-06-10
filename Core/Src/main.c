@@ -114,10 +114,12 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  MX_CRC_Init();
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
+  read_flash();
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
@@ -127,7 +129,6 @@ int main(void)
   MX_TIM7_Init();
   MX_TIM6_Init();
   MX_TIM12_Init();
-  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
   //------- SDADC DMA setup ----------------------------------
   HAL_SDADC_CalibrationStart(&hsdadc1, SDADC_CALIBRATION_SEQ_3);
@@ -154,9 +155,10 @@ int main(void)
   u8g2_Setup_ssd1306_128x64_noname_f(&u8g2, U8G2_R0, u8x8_byte_stm32_hw_i2c, u8x8_stm32_gpio_and_delay);
   u8g2_InitDisplay(&u8g2);
   u8g2_SetPowerSave(&u8g2, 0);
-  read_flash();
+  Redraw_display();
+
+  //main cycle
   unsigned long t1,delta_t1;
-  //temp_controller.pid.Kp = 10;
   int cnt=0;
   while(1){
 	  if(flag_10ms){
@@ -559,7 +561,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 1440;
+  htim2.Init.Period = temp_controller.pwm_counter_period;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)

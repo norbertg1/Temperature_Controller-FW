@@ -54,20 +54,70 @@ void snake_game_control(uint16_t GPIO_Pin){
 	}
 }
 
-float *get_rotating_menu_item(temperature_controller_data* controller){
-	if(controller->flash.menu==SET_Temp_MENU)		return	&controller->flash.target_temp;
-	if(controller->flash.menu==SET_Kp_MENU)			return	&controller->flash.pid.Kp;
-	if(controller->flash.menu==SET_Kd_MENU)			return	&controller->flash.pid.Kd;
-	if(controller->flash.menu==SET_Ki_MENU)			return	&controller->flash.pid.Ki;
-	if(controller->flash.menu==SET_MAX_P_MENU)		return	&controller->flash.pid.max_P;
-	if(controller->flash.menu==SET_P_MENU)			return	&controller->flash.set_power;
-	if(controller->flash.menu==SET_MODE_MENU)		return	&controller->flash.mode;
-	if(controller->flash.menu==CHOOSE_NTC_MENU)		return	&controller->flash.sensor;
+void *get_rotating_menu_item(temperature_controller_data* controller){
+	if(controller->flash.menu==SET_Temp_MENU)			return	&controller->flash.target_temp;
+	if(controller->flash.menu==SET_Kp_MENU)				return	&controller->flash.pid.Kp;
+	if(controller->flash.menu==SET_Kd_MENU)				return	&controller->flash.pid.Kd;
+	if(controller->flash.menu==SET_Ki_MENU)				return	&controller->flash.pid.Ki;
+	if(controller->flash.menu==SET_MAX_P_MENU)			return	&controller->flash.pid.max_P;
+	if(controller->flash.menu==SET_P_MENU)				return	&controller->flash.set_power;
+	if(controller->flash.menu==SET_MODE_MENU)			return	&controller->flash.mode;
+	if(controller->flash.menu==CHOOSE_NTC_MENU)			return	&controller->flash.sensor;
+	if(controller->flash.menu==CHOOSE_FREQUENCY_MENU)	return	&controller->flash.freq;
 	return &controller->dummy;
+}
+
+float get_rotate_slow_value(int menu){
+	switch(menu){
+	case SET_Kd_MENU:
+		return 10;
+	case SET_MODE_MENU:
+		return 2;
+	}
+	return 1;
+}
+
+short get_rotate_fast_value(int menu){
+	switch(menu){
+	case SET_MAX_P_MENU:
+	case SET_MODE_MENU:
+	case SET_P_MENU:
+		return 2;
+	case SET_Kd_MENU:
+		return 100;
+	case CHOOSE_NTC_MENU:
+	case SET_Ki_MENU:
+		return 1;
+	}
+	return 10;
 }
 
 void rotate(int value, int* ptr){
 	*ptr += value;
+}
+
+void settings_limits(temperature_controller_data* controller){
+	controller->flash.defaults=0;
+	switch(controller->flash.menu){
+	case SET_MODE_MENU:
+		if(controller->flash.mode <= -1)	controller->flash.mode = -1;
+		if(controller->flash.mode >= 1)	controller->flash.mode = 1;
+		break;
+	case CHOOSE_NTC_MENU:
+		if(controller->flash.sensor < 1)	controller->flash.sensor = thermistor_count;
+		if(controller->flash.sensor > thermistor_count)	controller->flash.sensor = 1;
+		break;
+	case SET_P_MENU:
+		if(controller->flash.set_power<0) controller->flash.set_power = 0;
+		if(controller->flash.set_power >100) controller->flash.set_power = 100;
+		set_duty_cycle(controller->flash.set_power);
+		break;
+	case CHOOSE_FREQUENCY_MENU:
+		if(controller->flash.freq < PWM_FREQ_MIN)	controller->flash.freq = PWM_FREQ_MIN;
+		if(controller->flash.freq > PWM_FREQ_MAX)	controller->flash.freq = PWM_FREQ_MAX;
+		controller->pwm_counter_period = (HAL_RCC_GetSysClockFreq()/1E3)/controller->flash.freq;
+		break;
+	}
 }
 
 //Interrupt function called on button press
@@ -79,17 +129,19 @@ void encoder (uint16_t GPIO_Pin){
 		return;
 	}
 	static uint32_t last_time;
-	float* ptr=get_rotating_menu_item(&temp_controller);
+	int* ptr=get_rotating_menu_item(&temp_controller);
+	float change_slow = get_rotate_slow_value(temp_controller.flash.menu);
+	short change_fast = get_rotate_fast_value(temp_controller.flash.menu);
 
 	switch(GPIO_Pin){
-	case ENCODER_PUSH_BUTTON_Pin:
-		if (temp_controller.flash.menu == SET_DEFAULTS_MENU && is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_PRESS)){
+	case ENCODER_PUSH_BUTTON_Pin:	//Push button
+		if (temp_controller.flash.menu == SET_DEFAULTS_MENU && is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_PRESS)){	//set all settings on default
 			set_defaults();
 			write_flash();
 			last_time = HAL_GetTick();
 			break;
 		}
-		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_LONG_PRESS)){
+		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_LONG_PRESS)){	//start snake game
 			temp_controller.flash.menu = SNAKE_MENU;
 			last_time = HAL_GetTick();
 			break;
@@ -100,71 +152,23 @@ void encoder (uint16_t GPIO_Pin){
 		if(temp_controller.flash.menu > MENU_MAX-1) temp_controller.flash.menu=1;
 		last_time = HAL_GetTick();
 		break;
-	case ENCODER_A_Pin:	//decrement
+	case ENCODER_A_Pin:				//Decrement
 		if(HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_B_Pin))	{
-			float change_slow=1;
-			short change_fast=10;
-			if(temp_controller.flash.menu == SET_MAX_P_MENU && temp_controller.flash.menu == SET_P_MENU) {
-				change_slow=1;
-				change_fast=2;
-			}
-			if(temp_controller.flash.menu == SET_Kd_MENU) {
-				change_slow=10;
-				change_fast=100;
-			}
-			if(temp_controller.flash.menu == SET_Ki_MENU || temp_controller.flash.menu == CHOOSE_NTC_MENU) {
-				change_slow=1;
-				change_fast=1;
-			}
-			if(temp_controller.flash.menu == SET_MODE_MENU) {
-				change_slow=2;
-				change_fast=2;
-			}
 			if((HAL_GetTick()-last_time) > ROTARY_SLOW)			rotate(-change_slow,ptr);
 			else if((HAL_GetTick()-last_time) > ROTARY_FAST)	rotate(-change_fast,ptr);
 			else												break;
-			if(temp_controller.flash.mode <= -1)	temp_controller.flash.mode = -1;
-			if(temp_controller.flash.sensor < 1)	temp_controller.flash.sensor = thermistor_count;
-			temp_controller.flash.defaults = 0;
+			settings_limits(&temp_controller);
 			write_flash();
-			if(temp_controller.flash.menu == SET_P_MENU)	{
-				set_duty_cycle(temp_controller.flash.set_power);
-				if(temp_controller.flash.set_power<0) temp_controller.flash.set_power = 0;
-			}
 			last_time = HAL_GetTick();
 		}
 		break;
-	case ENCODER_B_Pin:	//increment
+	case ENCODER_B_Pin:	//Increment
 		if(HAL_GPIO_ReadPin(ENCODER_B_GPIO_Port,ENCODER_A_Pin))	{
-			float change_slow=1;
-			short change_fast=10;
-			if(temp_controller.flash.menu == SET_MAX_P_MENU && temp_controller.flash.menu == SET_P_MENU) {
-				change_slow=1;
-				change_fast=2;
-			}
-			if(temp_controller.flash.menu == SET_Kd_MENU) {
-				change_slow=10;
-				change_fast=100;
-			}
-			if(temp_controller.flash.menu == SET_Ki_MENU) {
-				change_slow=1;
-				change_fast=1;
-			}
-			if(temp_controller.flash.menu == SET_MODE_MENU) {
-				change_slow=2;
-				change_fast=2;
-			}
 			if((HAL_GetTick()-last_time) > ROTARY_SLOW)			rotate(change_slow,ptr);
 			else if((HAL_GetTick()-last_time) > ROTARY_FAST)	rotate(change_fast,ptr);
 			else												break;
-			if(temp_controller.flash.mode >= 1)	temp_controller.flash.mode = 1;
-			if(temp_controller.flash.sensor > thermistor_count)	temp_controller.flash.sensor = 1;
-			temp_controller.flash.defaults = 0;
+			settings_limits(&temp_controller);
 			write_flash();
-			if(temp_controller.flash.menu == SET_P_MENU)	{
-				if(temp_controller.flash.set_power >100) temp_controller.flash.set_power = 100;
-				set_duty_cycle(temp_controller.flash.set_power);
-			}
 			last_time = HAL_GetTick();
 		}
 		break;

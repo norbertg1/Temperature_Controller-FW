@@ -18,7 +18,7 @@
 #define ADC_BUF_LEN				2
 #define ROTARY_FAST				20 // [ms] rotary speed fast
 #define ROTARY_SLOW				200 // [ms] rotary speed slow
-#define MENU_MAX				10
+#define MENU_MAX				11
 #define STARTUP_MENU			0
 #define SET_Temp_MENU			1
 #define SET_Kp_MENU				2
@@ -27,10 +27,11 @@
 #define SET_MAX_P_MENU			5
 #define SET_MODE_MENU			6	//Heating or cooling
 #define CHOOSE_NTC_MENU			7
-#define SET_P_MENU				8
-#define SET_DEFAULTS_MENU		9
-#define SNAKE_MENU				10
-#define TOO_HOT_MENU			11		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.
+#define CHOOSE_FREQUENCY_MENU	8
+#define SET_P_MENU				9
+#define SET_DEFAULTS_MENU		10
+#define SNAKE_MENU				11
+#define TOO_HOT_MENU			12		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.
 #define CUT_OFF_TEMP			80		//Its happens when the Peltier reaches this temperature in °C
 #define ADC_AVARAGE				50
 #define LONG_PRESS				3000
@@ -39,7 +40,8 @@
 #define	END						0
 #define RIGHT					2
 #define	LEFT					4
-#define PWM_COUNTER_PERIOD		1440
+#define	PWM_FREQ_MIN			1		//In kHz In case of 72 Mhz internal clock ===> 72000/100   = 720 Khz
+#define PWM_FREQ_MAX			720		//In kHz case of 72 Mhz internal clock ===> 72000/72000 = 1 Khz
 #define	MAX_POWER_PERCENT		80
 
 uint16_t adc_buf[ADC_BUF_LEN];
@@ -64,23 +66,25 @@ typedef struct PID{
 }PID;
 
 typedef struct flash{
-	int target_temp;
-	short menu;
-	short defaults;
-	short set_power;
-	int mode;			//-1 ---> cooling, 1 ---> heating
-	int sensor;		//NTC sensor choose from flash data
-	PID	  pid;
+	int 		target_temp;
+	short 		menu;
+	short 		defaults;
+	short 		set_power;
+	int 		mode;			//-1 ---> cooling, 1 ---> heating
+	int 		sensor;		//NTC sensor choose from flash data
+	long int	freq;		//PWM frequency for power modules
+	PID	  		pid;
 }flash;
 
 typedef struct    {
-	float current_temp;
-	float voltage;
-	float current;
-	float power;
-	short dummy;		//if non exist menu is set, step this variable with encoder
-	flash flash;
-	uint32_t crc;
+	float 		current_temp;
+	float 		voltage;
+	float 		current;
+	float 		power;
+	long int	pwm_counter_period;
+	short 		dummy;		//if non exist menu is set, step this variable with encoder
+	flash 		flash;
+	uint32_t 	crc;
 } temperature_controller_data;
 
 typedef struct BMP280_data{
