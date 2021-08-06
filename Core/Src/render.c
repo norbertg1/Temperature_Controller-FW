@@ -122,7 +122,6 @@ void menu1(){
 	short target_temp_str_nr;
 	short pwm_pixels = 40;
 	short pwm = fabs(temp_controller.flash.pid.out);
-	target_temp_str_nr = ftoa(temp_controller.flash.target_temp/10.0, target_temp_str, 1);
 	current_str_nr = ftoa(temp_controller.current, current_str, 1);
 	power_str_nr = ftoa(temp_controller.power, power_str, 1);
 	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
@@ -130,8 +129,11 @@ void menu1(){
 	u8g2_DrawUTF8(&u8g2, 0, 58, "temp.:");
 	u8g2_SetFont(&u8g2, u8g2_font_logisoso16_tf);	//The display has limited space
 	if(temp_controller.flash.target_temp<0) u8g2_DrawUTF8(&u8g2, 22, 52, "-");
+	if(abs(temp_controller.flash.target_temp) < 1000) target_temp_str_nr = ftoa(temp_controller.flash.target_temp/10.0, target_temp_str, 1);
+	else target_temp_str_nr = ftoa(temp_controller.flash.target_temp/10.0, target_temp_str, 0);
 	u8g2_DrawUTF8(&u8g2, 30, 58, target_temp_str);
-	u8g2_DrawUTF8(&u8g2, 26+target_temp_str_nr*14, 58, "°C");
+	if(abs(temp_controller.flash.target_temp) < 1000) u8g2_DrawUTF8(&u8g2, 26+target_temp_str_nr*14, 58, "°C");
+	else u8g2_DrawUTF8(&u8g2, 20+target_temp_str_nr*14, 58, "°C");
 	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te     );
 	u8g2_DrawUTF8(&u8g2, 90, 46, "I:");
 	u8g2_DrawUTF8(&u8g2, 100, 46, current_str);

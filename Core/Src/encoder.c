@@ -67,17 +67,18 @@ void *get_rotating_menu_item(temperature_controller_data* controller){
 	return &controller->dummy;
 }
 
-float get_rotate_slow_value(int menu){
+float get_rotate_slow_value(temperature_controller_data* controller, int menu){
 	switch(menu){
 	case SET_Kd_MENU:
 		return 10;
 	case SET_MODE_MENU:
 		return 2;
 	}
+	if(controller->flash.target_temp > 1000) return 10;
 	return 1;
 }
 
-short get_rotate_fast_value(int menu){
+short get_rotate_fast_value(temperature_controller_data* controller, int menu){
 	switch(menu){
 	case SET_MAX_P_MENU:
 	case SET_MODE_MENU:
@@ -89,6 +90,7 @@ short get_rotate_fast_value(int menu){
 	case SET_Ki_MENU:
 		return 1;
 	}
+	if(controller->flash.target_temp > 1000) return 100;
 	return 10;
 }
 
@@ -130,8 +132,8 @@ void encoder (uint16_t GPIO_Pin){
 	}
 	static uint32_t last_time;
 	int* ptr=get_rotating_menu_item(&temp_controller);
-	float change_slow = get_rotate_slow_value(temp_controller.flash.menu);
-	short change_fast = get_rotate_fast_value(temp_controller.flash.menu);
+	float change_slow = get_rotate_slow_value(&temp_controller, temp_controller.flash.menu);
+	short change_fast = get_rotate_fast_value(&temp_controller, temp_controller.flash.menu);
 
 	switch(GPIO_Pin){
 	case ENCODER_PUSH_BUTTON_Pin:	//Push button
