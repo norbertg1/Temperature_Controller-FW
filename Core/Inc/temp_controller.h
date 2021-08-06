@@ -48,10 +48,10 @@ uint16_t adc_buf[ADC_BUF_LEN];
 
 //UPDATED BY ADC DMA
 typedef struct    {
-	float current;
-	float voltage;
-	float resistance;
-	float temperature;
+	double current;
+	double voltage;
+	double resistance;
+	float  temperature;
 }adc_data;
 
 typedef struct PID{
@@ -94,9 +94,11 @@ typedef struct BMP280_data{
 }BMP280_data;
 
 enum sensors{
-	NTCS0603E3222FMT = 1,
-	NTCG163JX103DTDS = 2,
-	thermistor_count = 2
+	NTCS0603E3222FMT	= 1,
+	NTCG163JX103DTDS	= 2,
+	NTC_100K			= 3,
+	PT1000				= 4,
+	thermistor_count 	= 4
 };
 
 extern short cnt_adc;

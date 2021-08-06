@@ -42,7 +42,7 @@ void update_pid(){
 	if(temp_controller.flash.pid.errorSum > 200) temp_controller.flash.pid.errorSum=200;
 	if(temp_controller.flash.pid.errorSum < -200) temp_controller.flash.pid.errorSum=-200;
 	if(temp_controller.flash.pid.out > temp_controller.flash.pid.max_P) temp_controller.flash.pid.out = temp_controller.flash.pid.max_P;
-	if(temp_controller.flash.pid.out < 0) temp_controller.flash.pid.out = 0; 					//The hardware doesnt support heating
+	if(temp_controller.flash.pid.out < 0) temp_controller.flash.pid.out = 0; 					//The hardware doesnt support opposite
 	if(temp_controller.current_temp > CUT_OFF_TEMP && temp_controller.flash.mode == -1)	temp_controller.flash.menu = TOO_HOT_MENU;
 	if (temp_controller.flash.menu != SET_P_MENU)  set_duty_cycle(temp_controller.flash.pid.out);
 	t=HAL_GetTick();

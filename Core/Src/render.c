@@ -207,6 +207,8 @@ void menu_options2(){
 	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);
 	if (temp_controller.flash.sensor == NTCS0603E3222FMT)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCS0603E3222");
 	if (temp_controller.flash.sensor == NTCG163JX103DTDS)	u8g2_DrawUTF8(&u8g2, 42, 42, "NTCG163JX103");
+	if (temp_controller.flash.sensor == NTC_100K)			u8g2_DrawUTF8(&u8g2, 42, 42, "NTC_100K");
+	if (temp_controller.flash.sensor == PT1000)				u8g2_DrawUTF8(&u8g2, 42, 42, "PT1000");
 	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
 	u8g2_DrawUTF8(&u8g2, 10, 56, "Freq.: ");
 	u8g2_DrawUTF8(&u8g2, 64, 56, freq_str);

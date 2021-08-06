@@ -11,7 +11,7 @@
 uint32_t adc[2];
 adc_data ntc;
 float Vref=1.225,
-		R0 = 10000;
+		R0 = 3005; //10000;
 short defaults=0, flag_10ms, flag_200ms, flag_1s,  flag_10s;
 
 void TIM4_callback(){ 	//10ms interrupt, 100Hz
@@ -54,7 +54,7 @@ void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef* hsdadc){
 void calc_adc_values(){
 	adc[0]							=		adc[0]/cnt_adc;
 	adc[1]							=		adc[1]/cnt_adc;
-	ntc.current						=		((Vref/32767.0) *  adc[0])/10000;
+	ntc.current						=		((Vref/32767.0) *  adc[0])/R0;
 	ntc.voltage						=		(Vref/32767.0) *  adc[1];
 	ntc.resistance					=		ntc.voltage/ntc.current;
 	ntc.temperature					=		lookup_temp(ntc.resistance);
@@ -79,6 +79,14 @@ float lookup_temp(float R){
     	lookup_temp_table = NTCG163JX103DTDS_RT;
     	size = sizeof(NTCG163JX103DTDS_RT);
     	break;
+    case NTC_100K:
+    	lookup_temp_table = NTC_100K_RT;
+    	size = sizeof(NTC_100K_RT);
+    	break;
+    case PT1000:
+        	lookup_temp_table = PT1000_RT;
+        	size = sizeof(PT1000_RT);
+        	break;
     }
     int x,y;
     while(R<lookup_temp_table[i][1]){
@@ -93,6 +101,16 @@ float lookup_temp(float R){
     deltaT = lookup_temp_table[i+1][0]-lookup_temp_table[i][0];
     deltaR = lookup_temp_table[i+1][1]-lookup_temp_table[i][1];
     T=lookup_temp_table[i][0]+(R-lookup_temp_table[i][1])*deltaT/deltaR;
+
+    if(1){
+    	static float R_debug[100];
+    	static l=0;
+    	R_debug[l] = R;
+    	l++;
+    	if(l>=99) l=0;
+
+    }
+
     return T;
 }
 
