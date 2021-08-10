@@ -15,34 +15,36 @@
 #include "interrupt_callbacks.h"
 #include "encoder.h"
 
-#define ADC_BUF_LEN				2
-#define ROTARY_FAST				20 // [ms] rotary speed fast
-#define ROTARY_SLOW				200 // [ms] rotary speed slow
-#define MENU_MAX				11
-#define STARTUP_MENU			0
-#define SET_Temp_MENU			1
-#define SET_Kp_MENU				2
-#define SET_Kd_MENU				3
-#define SET_Ki_MENU				4
-#define SET_MAX_P_MENU			5
-#define SET_MODE_MENU			6	//Heating or cooling
-#define CHOOSE_NTC_MENU			7
-#define CHOOSE_FREQUENCY_MENU	8
-#define SET_P_MENU				9
-#define SET_DEFAULTS_MENU		10
-#define SNAKE_MENU				11
-#define TOO_HOT_MENU			12		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.
-#define CUT_OFF_TEMP			80		//Its happens when the Peltier reaches this temperature in °C
-#define ADC_AVARAGE				50
-#define LONG_PRESS				3000
-#define LONG_LONG_PRESS			5000
-#define SHORT_PRESS				100
-#define	END						0
-#define RIGHT					2
-#define	LEFT					4
-#define	PWM_FREQ_MIN			1		//In kHz In case of 72 Mhz internal clock ===> 72000/100   = 720 Khz
-#define PWM_FREQ_MAX			720		//In kHz case of 72 Mhz internal clock ===> 72000/72000 = 1 Khz
-#define	MAX_POWER_PERCENT		80
+#define ADC_BUF_LEN						2
+#define ROTARY_FAST						20 // [ms] rotary speed fast
+#define ROTARY_SLOW						200 // [ms] rotary speed slow
+#define MENU_MAX						11
+#define STARTUP_MENU					0
+#define SET_Temp_MENU					1
+#define SET_Kp_MENU						2
+#define SET_Kd_MENU						3
+#define SET_Ki_MENU						4
+#define SET_MAX_P_MENU					5
+#define SET_MODE_MENU					6	//Heating or cooling
+#define CHOOSE_NTC_MENU					7
+#define CHOOSE_FREQUENCY_MENU			8
+#define SET_P_MENU						9
+#define SET_DEFAULTS_MENU				10
+#define SNAKE_MENU						11
+#define TOO_HOT_MENU					12		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.
+#define NTC_INFINTE_RESISTANCE_MENU		13
+#define NTC_INFINITE_RESISTANCE			100000	//Resistance measured greater than this value in ohms means NTC is not connected
+#define CUT_OFF_TEMP					80		//Its happens when the Peltier reaches this temperature in °C
+#define ADC_AVARAGE						50
+#define LONG_PRESS						3000
+#define LONG_LONG_PRESS					5000
+#define SHORT_PRESS						100
+#define	END								0
+#define RIGHT							2
+#define	LEFT							4
+#define	PWM_FREQ_MIN					1		//In kHz In case of 72 Mhz internal clock ===> 72000/100   = 720 Khz
+#define PWM_FREQ_MAX					720		//In kHz case of 72 Mhz internal clock ===> 72000/72000 = 1 Khz
+#define	MAX_POWER_PERCENT				80
 
 uint16_t adc_buf[ADC_BUF_LEN];
 
@@ -82,6 +84,7 @@ typedef struct    {
 	float 		current;
 	float 		power;
 	long int	pwm_counter_period;
+	short		ntc_interrupted;
 	short 		dummy;		//if non exist menu is set, step this variable with encoder
 	flash 		flash;
 	uint32_t 	crc;

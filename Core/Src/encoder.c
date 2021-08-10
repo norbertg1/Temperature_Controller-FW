@@ -55,6 +55,7 @@ void snake_game_control(uint16_t GPIO_Pin){
 }
 
 void *get_rotating_menu_item(temperature_controller_data* controller){
+	if(controller->flash.menu==STARTUP_MENU)			return	&controller->flash.target_temp;
 	if(controller->flash.menu==SET_Temp_MENU)			return	&controller->flash.target_temp;
 	if(controller->flash.menu==SET_Kp_MENU)				return	&controller->flash.pid.Kp;
 	if(controller->flash.menu==SET_Kd_MENU)				return	&controller->flash.pid.Kd;
@@ -74,7 +75,10 @@ float get_rotate_slow_value(temperature_controller_data* controller, int menu){
 	case SET_MODE_MENU:
 		return 2;
 	}
-	if(controller->flash.target_temp > 1000) return 10;
+	if(controller->flash.target_temp > 1000 && (temp_controller.flash.menu == SET_Temp_MENU || temp_controller.flash.menu == STARTUP_MENU)) {
+		temp_controller.flash.target_temp = (round(temp_controller.flash.target_temp/10))*10;
+		return 10;
+	}
 	return 1;
 }
 
@@ -90,7 +94,10 @@ short get_rotate_fast_value(temperature_controller_data* controller, int menu){
 	case SET_Ki_MENU:
 		return 1;
 	}
-	if(controller->flash.target_temp > 1000) return 100;
+	if(controller->flash.target_temp > 1000 && (temp_controller.flash.menu == SET_Temp_MENU || temp_controller.flash.menu == STARTUP_MENU)) {
+		temp_controller.flash.target_temp = (round(temp_controller.flash.target_temp/10))*10;
+		return 100;
+	}
 	return 10;
 }
 
@@ -151,7 +158,7 @@ void encoder (uint16_t GPIO_Pin){
 
 		if((HAL_GetTick()-last_time) > SHORT_PRESS)  temp_controller.flash.menu++;
 		if(temp_controller.flash.menu == SET_P_MENU) temp_controller.flash.set_power=0;
-		if(temp_controller.flash.menu > MENU_MAX-1) temp_controller.flash.menu=1;
+		if(temp_controller.flash.menu > MENU_MAX-1)  temp_controller.flash.menu=1;
 		last_time = HAL_GetTick();
 		break;
 	case ENCODER_A_Pin:				//Decrement

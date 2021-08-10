@@ -97,6 +97,15 @@ void Redraw_display(){
 		u8g2_DrawUTF8(&u8g2, 16, 48, "Peltier is too hot!");
 		u8g2_SendBuffer(&u8g2);
 		break;
+	case NTC_INFINTE_RESISTANCE_MENU:
+		u8g2_ClearBuffer(&u8g2);
+		u8g2_SetFont(&u8g2, u8g2_font_fur14_tf    );
+		u8g2_DrawUTF8(&u8g2, 8, 24, "WARNING!!!");
+		u8g2_SetFont(&u8g2, u8g2_font_luRS08_tr       );
+		u8g2_DrawUTF8(&u8g2, 30, 40, "Temp. sensor");
+		u8g2_DrawUTF8(&u8g2, 24, 50, "not connected!");
+		u8g2_SendBuffer(&u8g2);
+		break;
 	}
 }
 
@@ -104,10 +113,10 @@ void set_defaults(){
 	temp_controller.flash.defaults = 1;
 	temp_controller.flash.target_temp = 0;
 	temp_controller.flash.pid.errorSum = 0;
-	temp_controller.flash.pid.Kp=300;
-	temp_controller.flash.pid.Kd=10000;
-	temp_controller.flash.pid.Ki=5;
-	temp_controller.flash.pid.max_P = 80;
+	temp_controller.flash.pid.Kp= 75;
+	temp_controller.flash.pid.Kd= 4100;
+	temp_controller.flash.pid.Ki= 3;
+	temp_controller.flash.pid.max_P = 60;
 	temp_controller.flash.mode = -1;
 	temp_controller.flash.sensor = 1;
 	temp_controller.flash.freq = 50;

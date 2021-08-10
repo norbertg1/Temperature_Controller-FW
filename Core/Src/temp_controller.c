@@ -18,7 +18,6 @@ short cnt_adc=0;
 
 void set_duty_cycle(float percent){
 	int set_pwm = (temp_controller.pwm_counter_period/100.0)*percent;
-	if(temp_controller.flash.menu == TOO_HOT_MENU) set_pwm = 0;
 	TIM2->CCR1=set_pwm;
 	TIM2->CCR2=set_pwm;
 }
@@ -44,7 +43,10 @@ void update_pid(){
 	if(temp_controller.flash.pid.out > temp_controller.flash.pid.max_P) temp_controller.flash.pid.out = temp_controller.flash.pid.max_P;
 	if(temp_controller.flash.pid.out < 0) temp_controller.flash.pid.out = 0; 					//The hardware doesnt support opposite
 	if(temp_controller.current_temp > CUT_OFF_TEMP && temp_controller.flash.mode == -1)	temp_controller.flash.menu = TOO_HOT_MENU;
-	if (temp_controller.flash.menu != SET_P_MENU)  set_duty_cycle(temp_controller.flash.pid.out);
+
+	if(temp_controller.flash.menu == TOO_HOT_MENU)					temp_controller.flash.pid.out = 0;
+	if(temp_controller.flash.menu == NTC_INFINTE_RESISTANCE_MENU) 	temp_controller.flash.pid.out = 0;
+	if (temp_controller.flash.menu != SET_P_MENU)  					set_duty_cycle(temp_controller.flash.pid.out);
 	t=HAL_GetTick();
 	last_t[cnt++]=temp_controller.flash.pid.delta_t*1000;
 	if (cnt==99) cnt=0;

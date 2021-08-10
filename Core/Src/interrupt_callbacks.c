@@ -47,6 +47,8 @@ void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef* hsdadc){
 		HAL_SDADC_Stop_DMA(&hsdadc1);
 		HAL_SDADC_Stop_DMA(&hsdadc2);
 		calc_adc_values();
+		if (ntc.resistance > NTC_INFINITE_RESISTANCE) temp_controller.flash.menu = NTC_INFINTE_RESISTANCE_MENU;
+		else if(temp_controller.flash.menu == NTC_INFINTE_RESISTANCE_MENU)temp_controller.flash.menu = STARTUP_MENU;
 		if(temp_controller.flash.menu != STARTUP_MENU)	update_pid();
 	}
 }
@@ -54,14 +56,15 @@ void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef* hsdadc){
 void calc_adc_values(){
 	adc[0]							=		adc[0]/cnt_adc;
 	adc[1]							=		adc[1]/cnt_adc;
-	ntc.current						=		((Vref/32767.0) *  adc[0])/R0;
-	ntc.voltage						=		(Vref/32767.0) *  adc[1];
-	ntc.resistance					=		ntc.voltage/ntc.current;
+	//ntc.current					=		((Vref/32767.0) *  adc[0])/R0;
+	//ntc.voltage					=		(Vref/32767.0) *  adc[1];
+	//ntc.resistance				=		ntc.voltage/ntc.current;
+	ntc.resistance					=		adc[1]/(adc[0]/R0);
 	ntc.temperature					=		lookup_temp(ntc.resistance);
 	cnt_adc							=		0;
 	adc[0]							=		0;
 	adc[1]							=		0;
-	temp_controller.current_temp	=		ntc.temperature;
+	temp_controller.current_temp	=		0.95*temp_controller.current_temp + 0.05*ntc.temperature;
 }
 
 //gives back the temperature based on NTC resistance value, lookup table needed!
