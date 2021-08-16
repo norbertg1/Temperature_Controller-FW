@@ -144,6 +144,12 @@ void encoder (uint16_t GPIO_Pin){
 
 	switch(GPIO_Pin){
 	case ENCODER_PUSH_BUTTON_Pin:	//Push button
+		if (is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_PRESS)){	//start snake game
+			if(MENU_LEVEL1_MIN <= temp_controller.flash.menu <= MENU_LEVEL1_MAX)	temp_controller.flash.menu = SET_Temp_MENU;
+			if(MENU_LEVEL2_MIN <= temp_controller.flash.menu <= MENU_LEVEL2_MAX)	temp_controller.flash.menu = SET_Kp_MENU;
+			last_time = HAL_GetTick();
+			break;
+			}
 		if (temp_controller.flash.menu == SET_DEFAULTS_MENU && is_long_pressed(ENCODER_PUSH_BUTTON_GPIO_Port, ENCODER_PUSH_BUTTON_Pin, 0, LONG_PRESS)){	//set all settings on default
 			set_defaults();
 			write_flash();
@@ -154,11 +160,12 @@ void encoder (uint16_t GPIO_Pin){
 			temp_controller.flash.menu = SNAKE_MENU;
 			last_time = HAL_GetTick();
 			break;
-		}
+			}
 
 		if((HAL_GetTick()-last_time) > SHORT_PRESS)  temp_controller.flash.menu++;
 		if(temp_controller.flash.menu == SET_P_MENU) temp_controller.flash.set_power=0;
-		if(temp_controller.flash.menu > MENU_MAX-1)  temp_controller.flash.menu=1;
+		if(temp_controller.flash.menu == MENU_LEVEL1_MAX)  temp_controller.flash.menu=SET_Temp_MENU;
+		if(temp_controller.flash.menu == MENU_LEVEL2_MAX)  temp_controller.flash.menu=SET_Kp_MENU;
 		last_time = HAL_GetTick();
 		break;
 	case ENCODER_A_Pin:				//Decrement

@@ -18,21 +18,28 @@
 #define ADC_BUF_LEN						2
 #define ROTARY_FAST						20 // [ms] rotary speed fast
 #define ROTARY_SLOW						200 // [ms] rotary speed slow
-#define MENU_MAX						11
+
 #define STARTUP_MENU					0
+#define MENU_LEVEL1_MIN					1
 #define SET_Temp_MENU					1
-#define SET_Kp_MENU						2
-#define SET_Kd_MENU						3
-#define SET_Ki_MENU						4
-#define SET_MAX_P_MENU					5
-#define SET_MODE_MENU					6	//Heating or cooling
-#define CHOOSE_NTC_MENU					7
-#define CHOOSE_FREQUENCY_MENU			8
-#define SET_P_MENU						9
-#define SET_DEFAULTS_MENU				10
-#define SNAKE_MENU						11
-#define TOO_HOT_MENU					12		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.
-#define NTC_INFINTE_RESISTANCE_MENU		13
+#define SET_P_MENU						2
+#define MENU_LEVEL1_MAX					2
+
+#define MENU_LEVEL2_MIN					101
+#define SET_Kp_MENU						101
+#define SET_Kd_MENU						102
+#define SET_Ki_MENU						103
+#define SET_MAX_P_MENU					104
+#define SET_MODE_MENU					105	//Heating or cooling
+#define CHOOSE_NTC_MENU					106
+#define CHOOSE_FREQUENCY_MENU			107
+#define SET_DEFAULTS_MENU				108
+#define MENU_LEVEL2_MAX					108
+
+#define SNAKE_MENU						200
+#define TOO_HOT_MENU					201		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.
+#define NTC_INFINTE_RESISTANCE_MENU		202
+
 #define NTC_INFINITE_RESISTANCE			100000	//Resistance measured greater than this value in ohms means NTC is not connected
 #define CUT_OFF_TEMP					80		//Its happens when the Peltier reaches this temperature in °C
 #define ADC_AVARAGE						50
