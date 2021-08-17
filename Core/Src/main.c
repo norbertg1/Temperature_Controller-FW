@@ -168,7 +168,7 @@ int main(void)
 	  }
 	  if(flag_200ms){
 		  flag_200ms=0;
-		  //blink();
+		  blink();
 		  Redraw_display();
 	  	  }
 	  if(temp_controller.flash.menu == SNAKE_MENU)	snake_start(&u8g2);

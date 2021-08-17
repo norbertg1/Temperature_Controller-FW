@@ -57,7 +57,6 @@
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Temperature controller/Drivers/ssd1306}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Temperature controller/Core/Inc/sys}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Temperature controller/Core/Src/sys}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Temperature controller/Drivers/u8g2/csrc}&quot;"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.291824127" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
