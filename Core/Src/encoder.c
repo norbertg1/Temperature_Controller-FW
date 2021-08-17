@@ -64,7 +64,8 @@ void *get_rotating_menu_item(temperature_controller_data* controller){
 	if(controller->flash.menu==SET_P_MENU)				return	&controller->flash.set_power;
 	if(controller->flash.menu==SET_MODE_MENU)			return	&controller->flash.mode;
 	if(controller->flash.menu==CHOOSE_NTC_MENU)			return	&controller->flash.sensor;
-	if(controller->flash.menu==CHOOSE_FREQUENCY_MENU)	return	&controller->flash.freq;
+	if(controller->flash.menu==SET_FREQUENCY_MENU)		return	&controller->flash.freq;
+	if(controller->flash.menu==SET_TEMPOFFSET_MENU)			return	&controller->flash.offset_temp;
 	return &controller->dummy;
 }
 
@@ -74,10 +75,12 @@ float get_rotate_slow_value(temperature_controller_data* controller, int menu){
 		return 10;
 	case SET_MODE_MENU:
 		return 2;
+	case SET_TEMPOFFSET_MENU:
+		return 1;
 	}
 	if(controller->flash.target_temp > 1000 && (temp_controller.flash.menu == SET_Temp_MENU || temp_controller.flash.menu == STARTUP_MENU)) {
 		temp_controller.flash.target_temp = (round(temp_controller.flash.target_temp/10))*10;
-		return 10;
+		return 1;
 	}
 	return 1;
 }
@@ -93,6 +96,8 @@ short get_rotate_fast_value(temperature_controller_data* controller, int menu){
 	case CHOOSE_NTC_MENU:
 	case SET_Ki_MENU:
 		return 1;
+	case SET_TEMPOFFSET_MENU:
+		return 10;
 	}
 	if(controller->flash.target_temp > 1000 && (temp_controller.flash.menu == SET_Temp_MENU || temp_controller.flash.menu == STARTUP_MENU)) {
 		temp_controller.flash.target_temp = (round(temp_controller.flash.target_temp/10))*10;
@@ -121,11 +126,14 @@ void settings_limits(temperature_controller_data* controller){
 		if(controller->flash.set_power >100) controller->flash.set_power = 100;
 		set_duty_cycle(controller->flash.set_power);
 		break;
-	case CHOOSE_FREQUENCY_MENU:
+	case SET_FREQUENCY_MENU:
 		if(controller->flash.freq < PWM_FREQ_MIN)	controller->flash.freq = PWM_FREQ_MIN;
 		if(controller->flash.freq > PWM_FREQ_MAX)	controller->flash.freq = PWM_FREQ_MAX;
 		controller->pwm_counter_period = (HAL_RCC_GetSysClockFreq()/1E3)/controller->flash.freq;
 		break;
+	case SET_TEMPOFFSET_MENU:
+		if(controller->flash.offset_temp < TEMP_OFFSET_MIN)	controller->flash.offset_temp = TEMP_OFFSET_MIN;
+		if(controller->flash.offset_temp > TEMP_OFFSET_MAX)	controller->flash.offset_temp = TEMP_OFFSET_MAX;
 	}
 }
 

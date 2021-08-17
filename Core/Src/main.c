@@ -155,7 +155,7 @@ int main(void)
   u8g2_InitDisplay(&u8g2);
   u8g2_SetPowerSave(&u8g2, 0);
   Redraw_display();
-
+  temp_controller.flash.menu = 105;
   //main cycle
   while(1){
 	  if(flag_10ms){
@@ -168,7 +168,7 @@ int main(void)
 	  }
 	  if(flag_200ms){
 		  flag_200ms=0;
-		  blink();
+		  //blink();
 		  Redraw_display();
 	  	  }
 	  if(temp_controller.flash.menu == SNAKE_MENU)	snake_start(&u8g2);

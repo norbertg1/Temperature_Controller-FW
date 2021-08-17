@@ -32,9 +32,10 @@
 #define SET_MAX_P_MENU					104
 #define SET_MODE_MENU					105	//Heating or cooling
 #define CHOOSE_NTC_MENU					106
-#define CHOOSE_FREQUENCY_MENU			107
-#define SET_DEFAULTS_MENU				108
-#define MENU_LEVEL2_MAX					108
+#define SET_FREQUENCY_MENU				107
+#define SET_TEMPOFFSET_MENU					108
+#define SET_DEFAULTS_MENU				109
+#define MENU_LEVEL2_MAX					109
 
 #define SNAKE_MENU						200
 #define TOO_HOT_MENU					201		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.
@@ -51,6 +52,8 @@
 #define	LEFT							4
 #define	PWM_FREQ_MIN					1		//In kHz In case of 72 Mhz internal clock ===> 72000/100   = 720 Khz
 #define PWM_FREQ_MAX					720		//In kHz case of 72 Mhz internal clock ===> 72000/72000 = 1 Khz
+#define	TEMP_OFFSET_MAX					100		//Temperature max offset which is added to temperature reading,	/10
+#define	TEMP_OFFSET_MIN					-100	//Temperature min offset which is added to temperature reading, /10
 #define	MAX_POWER_PERCENT				80
 
 uint16_t adc_buf[ADC_BUF_LEN];
@@ -76,6 +79,7 @@ typedef struct PID{
 
 typedef struct flash{
 	int 		target_temp;
+	int			offset_temp;
 	short 		menu;
 	short 		defaults;
 	short 		set_power;

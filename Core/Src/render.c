@@ -52,7 +52,7 @@ void Redraw_display(){
 		u8g2_DrawUTF8(&u8g2, 0, 42, "*");
 		u8g2_SendBuffer(&u8g2);
 		break;
-	case CHOOSE_FREQUENCY_MENU:
+	case SET_FREQUENCY_MENU:
 		menu_options2();
 		u8g2_DrawUTF8(&u8g2, 0, 56, "*");
 		u8g2_SendBuffer(&u8g2);
@@ -80,6 +80,12 @@ void Redraw_display(){
 		u8g2_DrawUTF8(&u8g2, 80+power_str_nr*8, 58, "W");
 		u8g2_SendBuffer(&u8g2);
 		break;
+
+	case SET_TEMPOFFSET_MENU:
+		menu_options3();
+		u8g2_SendBuffer(&u8g2);
+		break;
+
 	case SET_DEFAULTS_MENU:
 		u8g2_ClearBuffer(&u8g2);
 		u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
@@ -224,5 +230,19 @@ void menu_options2(){
 	u8g2_DrawUTF8(&u8g2, 10, 56, "Freq.: ");
 	u8g2_DrawUTF8(&u8g2, 64, 56, freq_str);
 	u8g2_DrawUTF8(&u8g2, 92, 56, "kHz");
+
+}
+
+void menu_options3(){
+	char str[10];
+	u8g2_ClearBuffer(&u8g2);
+	if(temp_controller.flash.offset_temp == TEMP_OFFSET_MAX) ftoa((float)TEMP_OFFSET_MAX/10, str, 0);
+	if(temp_controller.flash.offset_temp == TEMP_OFFSET_MIN) ftoa((float)TEMP_OFFSET_MIN/10, str, 0);
+	if(TEMP_OFFSET_MIN < temp_controller.flash.offset_temp && temp_controller.flash.offset_temp < TEMP_OFFSET_MAX) ftoa((float)temp_controller.flash.offset_temp/10, str, 1);
+	u8g2_SetFont(&u8g2, u8g2_font_unifont_tf);
+	u8g2_DrawUTF8(&u8g2, 10, 14, "Cal.Temp:");
+	if(temp_controller.flash.offset_temp<0) u8g2_DrawUTF8(&u8g2, 80, 14, "-");
+	u8g2_DrawUTF8(&u8g2, 88, 14, str);
+	u8g2_DrawUTF8(&u8g2, 112, 14, "°C");
 
 }

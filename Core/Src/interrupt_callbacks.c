@@ -60,7 +60,7 @@ void calc_adc_values(){
 	//ntc.voltage					=		(Vref/32767.0) *  adc[1];
 	//ntc.resistance				=		ntc.voltage/ntc.current;
 	ntc.resistance					=		adc[1]/(adc[0]/R0);
-	ntc.temperature					=		lookup_temp(ntc.resistance);
+	ntc.temperature					=		lookup_temp(ntc.resistance) + (float)temp_controller.flash.offset_temp/10;
 	cnt_adc							=		0;
 	adc[0]							=		0;
 	adc[1]							=		0;
@@ -105,7 +105,7 @@ float lookup_temp(float R){
     deltaR = lookup_temp_table[i+1][1]-lookup_temp_table[i][1];
     T=lookup_temp_table[i][0]+(R-lookup_temp_table[i][1])*deltaT/deltaR;
 
-    if(1){
+    if(0){
     	static float R_debug[100];
     	static l=0;
     	R_debug[l] = R;
