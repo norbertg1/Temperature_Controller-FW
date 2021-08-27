@@ -38,6 +38,28 @@ void TIM7_callback(){ //10s interrupt, 0.1Hz
 	flag_10s=1;
 }
 
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	HAL_NVIC_DisableIRQ(TIM6_DAC1_IRQn);
+	if(UART_rxBuffer[0] == 'S'){
+		temp_controller.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash));
+		HAL_UART_Transmit_IT(&huart2, (uint8_t*)temp_controller.flash.target_temp, sizeof (temp_controller.flash) + sizeof (temp_controller.crc));
+	}
+	if(UART_rxBuffer[0] != 0){
+		//temp_controller.flash.target_temp = UART_rxBuffer;
+	}
+	HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
+	HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 64);
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
+	HAL_StatusTypeDef error  = huart->ErrorCode;
+}
+
+void USART2_callback(){
+
+}
+
 //Interrupt function called on completed ADC conversion
 void HAL_SDADC_ConvCpltCallback(SDADC_HandleTypeDef* hsdadc){
 	adc[0]		+=		adc_buf[0];

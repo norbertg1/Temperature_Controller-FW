@@ -65,6 +65,7 @@ extern INA226 INA226_1,INA226_2;
 extern SDADC_HandleTypeDef hsdadc1;
 extern SDADC_HandleTypeDef hsdadc2;
 extern CRC_HandleTypeDef hcrc;
+extern UART_HandleTypeDef huart2;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

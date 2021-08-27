@@ -11,6 +11,7 @@
 
 extern short flag_10ms, flag_200ms, flag_1s, flag_10s;
 
+void USART2_callback();
 void TIM3_callback();
 void TIM4_callback();
 void TIM6_callback();

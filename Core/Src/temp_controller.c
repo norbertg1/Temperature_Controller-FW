@@ -15,6 +15,7 @@ BMP280_data BMP280_sensor;
 struct _BMP280_HandleTypedef bmp280;
 
 short cnt_adc=0;
+uint8_t UART_rxBuffer[64];
 
 void set_duty_cycle(float percent){
 	int set_pwm = (temp_controller.pwm_counter_period/100.0)*percent;
@@ -69,6 +70,11 @@ void write_flash(){
 	temp_controller.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
 	flash_WriteN(0, &temp_controller.flash,ceil((sizeof(temp_controller.flash)+4)/8.0),DATA_TYPE_64);
 
+}
+
+void SendTempUART(){
+	HAL_UART_Transmit(&huart2, (uint8_t)temp_controller.current_temp, sizeof (temp_controller.current_temp),1000);
+	//HAL_UART_Transmit_IT(&huart2, (uint8_t)temp_controller.current_temp, sizeof (temp_controller.current_temp));
 }
 
 void init_bmp280(BMP280_HandleTypedef *bmp280, int BMP280_ADRESS){

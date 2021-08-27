@@ -116,6 +116,7 @@ enum sensors{
 };
 
 extern short cnt_adc;
+extern uint8_t UART_rxBuffer[64];
 extern temperature_controller_data temp_controller;
 
 extern void calc_adc_values();
