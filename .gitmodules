@@ -7,3 +7,5 @@
 [submodule "/Users/Norbert/Temperature_Controller-SW/Core/Src/snake_game"]
 	path = Core/Src/snake_game
 	url = git@github.com:norbertg1/Snake-game.git
+[submodule "Core/Src/snake_game"]
+	url = https://github.com/norbertg1/Snake-game
