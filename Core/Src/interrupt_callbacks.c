@@ -38,14 +38,26 @@ void TIM7_callback(){ //10s interrupt, 0.1Hz
 	flag_10s=1;
 }
 
+void copy_wpadding(flash *flash_padded, flash_unpadded *flash_unpadded, bool direction){
+	if(direction){
+		flash_unpadded->defaults = flash_padded->defaults;
+	}
+	if(!direction){
+
+	}
+
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	HAL_NVIC_DisableIRQ(TIM6_DAC1_IRQn);
 	if(UART_rxBuffer[0] == 'S'){
+		flash_unpadded flash_unpadded;
+		copy_wpadding(&temp_controller.flash, &flash_unpadded, 1);
 		temp_controller.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash));
-		HAL_UART_Transmit_IT(&huart2, (uint8_t*)temp_controller.flash.target_temp, sizeof (temp_controller.flash) + sizeof (temp_controller.crc));
+		HAL_UART_Transmit(&huart2, (uint8_t*)&temp_controller.flash, sizeof (temp_controller.flash),1000);
 	}
-	if(UART_rxBuffer[0] != 0){
+	else{
 		//temp_controller.flash.target_temp = UART_rxBuffer;
 	}
 	HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);

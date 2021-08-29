@@ -101,6 +101,29 @@ typedef struct    {
 	uint32_t 	crc;
 } temperature_controller_data;
 
+typedef struct PID_unpadded{
+	int 	Kp;
+	int 	Kd;
+	int 	Ki;
+	float 	error;
+	float 	errorSum;
+	float 	delta_t;
+	int 	max_P;         //in percent
+	float 	out;
+}PID_unpadded __attribute__((packed));
+
+typedef struct flash_unpadded{
+	int 		target_temp;
+	int			offset_temp;
+	short 		menu;
+	short 		defaults;
+	short 		set_power;
+	int 		mode;			//-1 ---> cooling, 1 ---> heating
+	int 		sensor;		//NTC sensor choose from flash data
+	long int	freq;		//PWM frequency for power modules
+	PID	  		pid;
+}flash_unpadded __attribute__((packed));
+
 typedef struct BMP280_data{
 	float temp;
 	float pressure;

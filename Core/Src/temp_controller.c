@@ -73,7 +73,15 @@ void write_flash(){
 }
 
 void SendTempUART(){
-	HAL_UART_Transmit(&huart2, (uint8_t)temp_controller.current_temp, sizeof (temp_controller.current_temp),1000);
+	//uint8_t a[4] = {1,2,3,4};
+	float a[2] = {12.34,1.23};
+	int l = sizeof(temp_controller.flash.freq);
+	int i = sizeof(temp_controller.flash.sensor);
+	int f = sizeof(temp_controller.flash.pid.delta_t);
+	int s = sizeof(temp_controller.flash.defaults);
+		//HAL_UART_Transmit(&huart2, (uint8_t*)a, sizeof (a),1000);
+	HAL_UART_Transmit(&huart2, (uint8_t*)&temp_controller.current_temp, sizeof (temp_controller.current_temp),1000);
+	HAL_Delay(3000);
 	//HAL_UART_Transmit_IT(&huart2, (uint8_t)temp_controller.current_temp, sizeof (temp_controller.current_temp));
 }
 
