@@ -38,7 +38,7 @@ void TIM7_callback(){ //10s interrupt, 0.1Hz
 	flag_10s=1;
 }
 
-void copy_wpadding(flash *flash_padded, flash_unpadded *flash_unpadded, bool direction){
+/*void copy_wpadding(flash *flash_padded, flash_unpadded *flash_unpadded, bool direction){
 	if(direction){
 		flash_unpadded->defaults = flash_padded->defaults;
 	}
@@ -46,16 +46,55 @@ void copy_wpadding(flash *flash_padded, flash_unpadded *flash_unpadded, bool dir
 
 	}
 
-}
+}*/
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+	typedef struct __attribute__((packed)){
+		int 			Kp;
+		int 			Kd;
+		int 			Ki;
+		float 			error;
+		float 			errorSum;
+		float 			delta_t;
+		int 			max_P;         //in percent
+		float 			out;
+	}PID_unpadded;
+
+	struct __attribute__((packed)) {
+		int 			target_temp;
+		int				offset_temp;
+		short 			menu;
+		short 			defaults;
+		short 			set_power;
+		int 			mode;			//-1 ---> cooling, 1 ---> heating
+		int 			sensor;		//NTC sensor choose from flash data
+		long int		freq;		//PWM frequency for power modules
+		PID_unpadded	pid;
+		uint32_t		crc;
+	}flash_unpadded;
+
 	HAL_NVIC_DisableIRQ(TIM6_DAC1_IRQn);
 	if(UART_rxBuffer[0] == 'S'){
-		flash_unpadded flash_unpadded;
-		copy_wpadding(&temp_controller.flash, &flash_unpadded, 1);
-		temp_controller.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash));
-		HAL_UART_Transmit(&huart2, (uint8_t*)&temp_controller.flash, sizeof (temp_controller.flash),1000);
+		flash_unpadded.target_temp = temp_controller.flash.target_temp;
+		flash_unpadded.offset_temp = temp_controller.flash.offset_temp;
+		flash_unpadded.menu = temp_controller.flash.menu;
+		flash_unpadded.defaults = temp_controller.flash.defaults;
+		flash_unpadded.set_power = temp_controller.flash.set_power;
+		flash_unpadded.mode = temp_controller.flash.mode;
+		flash_unpadded.sensor = temp_controller.flash.sensor;
+		flash_unpadded.freq = temp_controller.flash.freq;
+		flash_unpadded.pid.Kp = temp_controller.flash.pid.Kp;
+		flash_unpadded.pid.Kd = temp_controller.flash.pid.Kd;
+		flash_unpadded.pid.Ki = temp_controller.flash.pid.Ki;
+		flash_unpadded.pid.error = temp_controller.flash.pid.error;
+		flash_unpadded.pid.errorSum = temp_controller.flash.pid.errorSum;
+		flash_unpadded.pid.delta_t = temp_controller.flash.pid.delta_t;
+		flash_unpadded.pid.max_P = temp_controller.flash.pid.max_P;
+		flash_unpadded.pid.out = temp_controller.flash.pid.out;
+
+		flash_unpadded.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&flash_unpadded, sizeof(flash_unpadded) - sizeof(flash_unpadded.crc));
+		HAL_UART_Transmit(&huart2, (uint8_t*)&flash_unpadded, sizeof (flash_unpadded),1000);
 	}
 	else{
 		//temp_controller.flash.target_temp = UART_rxBuffer;
