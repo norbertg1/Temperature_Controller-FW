@@ -162,9 +162,9 @@ int main(void)
   Redraw_display();
   temp_controller.flash.menu = 1;
   //main cycle
-  HAL_UART_Receive_IT (&huart2, UART_rxBuffer, 64);
+  HAL_UART_Receive_IT (&huart2, UART_rxBuffer, 16);
   while(1){
-	  //HAL_UART_Receive_IT (&huart2, UART_rxBuffer, 1);
+	  //HAL_UART_Receive_IT (&huart2, UART_rxBuffer, 5);
 	  if(flag_10ms){
 		  flag_10ms=0;
 	  }
@@ -180,6 +180,7 @@ int main(void)
 		  SendTempUART();
 	  	  }
 	  if(temp_controller.flash.menu == SNAKE_MENU)	snake_start(&u8g2);
+	  HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 16); //Dont knwo why but without it, forgets interrupt
 	  HAL_Delay(1);
   }
 

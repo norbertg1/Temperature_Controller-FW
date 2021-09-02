@@ -57,8 +57,8 @@ void read_flash(){
 	uint32_t crc;
 
 	flash_ReadN(0,&temp_controller.flash,ceil((sizeof(temp_controller.flash)+4)/8.0),DATA_TYPE_64);
-	crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
-	if(crc != temp_controller.crc)	set_defaults();
+	crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
+	if(crc != temp_controller.flash.crc)	set_defaults();
 	set_duty_cycle(0);
 	temp_controller.flash.pid.out = 0;
 	temp_controller.flash.menu = 0;
@@ -67,21 +67,15 @@ void read_flash(){
 }
 
 void write_flash(){
-	temp_controller.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
+	temp_controller.flash.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
 	flash_WriteN(0, &temp_controller.flash,ceil((sizeof(temp_controller.flash)+4)/8.0),DATA_TYPE_64);
 
 }
 
 void SendTempUART(){
-	//uint8_t a[4] = {1,2,3,4};
-	float a = 12.34;
-	int l = sizeof(temp_controller.flash.freq);
-	int i = sizeof(temp_controller.flash.sensor);
-	int f = sizeof(temp_controller.flash.pid.delta_t);
-	int s = sizeof(temp_controller.flash.defaults);
-	//HAL_UART_Transmit(&huart2, (uint8_t*)&a, sizeof (a),1000);
+
 	HAL_UART_Transmit(&huart2, (uint8_t*)&temp_controller.current_temp, sizeof (temp_controller.current_temp),1000);
-	//HAL_UART_Transmit_IT(&huart2, (uint8_t)temp_controller.current_temp, sizeof (temp_controller.current_temp));
+
 }
 
 void init_bmp280(BMP280_HandleTypedef *bmp280, int BMP280_ADRESS){

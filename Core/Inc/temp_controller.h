@@ -87,6 +87,7 @@ typedef struct flash{
 	int 		sensor;		//NTC sensor choose from flash data
 	long int	freq;		//PWM frequency for power modules
 	PID	  		pid;
+	uint32_t 	crc;
 }flash;
 
 typedef struct    {
@@ -98,7 +99,6 @@ typedef struct    {
 	short		ntc_interrupted;
 	short 		dummy;		//if non exist menu is set, step this variable with encoder
 	flash 		flash;
-	uint32_t 	crc;
 } temperature_controller_data;
 
 typedef struct BMP280_data{

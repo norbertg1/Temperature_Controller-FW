@@ -38,69 +38,26 @@ void TIM7_callback(){ //10s interrupt, 0.1Hz
 	flag_10s=1;
 }
 
-/*void copy_wpadding(flash *flash_padded, flash_unpadded *flash_unpadded, bool direction){
-	if(direction){
-		flash_unpadded->defaults = flash_padded->defaults;
-	}
-	if(!direction){
-
-	}
-
-}*/
-
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	typedef struct __attribute__((packed)){
-		int 			Kp;
-		int 			Kd;
-		int 			Ki;
-		float 			error;
-		float 			errorSum;
-		float 			delta_t;
-		int 			max_P;         //in percent
-		float 			out;
-	}PID_unpadded;
-
-	struct __attribute__((packed)) {
-		int 			target_temp;
-		int				offset_temp;
-		short 			menu;
-		short 			defaults;
-		short 			set_power;
-		int 			mode;			//-1 ---> cooling, 1 ---> heating
-		int 			sensor;		//NTC sensor choose from flash data
-		long int		freq;		//PWM frequency for power modules
-		PID_unpadded	pid;
-		uint32_t		crc;
-	}flash_unpadded;
-
 	HAL_NVIC_DisableIRQ(TIM6_DAC1_IRQn);
-	if(UART_rxBuffer[0] == 'S'){
-		flash_unpadded.target_temp = temp_controller.flash.target_temp;
-		flash_unpadded.offset_temp = temp_controller.flash.offset_temp;
-		flash_unpadded.menu = temp_controller.flash.menu;
-		flash_unpadded.defaults = temp_controller.flash.defaults;
-		flash_unpadded.set_power = temp_controller.flash.set_power;
-		flash_unpadded.mode = temp_controller.flash.mode;
-		flash_unpadded.sensor = temp_controller.flash.sensor;
-		flash_unpadded.freq = temp_controller.flash.freq;
-		flash_unpadded.pid.Kp = temp_controller.flash.pid.Kp;
-		flash_unpadded.pid.Kd = temp_controller.flash.pid.Kd;
-		flash_unpadded.pid.Ki = temp_controller.flash.pid.Ki;
-		flash_unpadded.pid.error = temp_controller.flash.pid.error;
-		flash_unpadded.pid.errorSum = temp_controller.flash.pid.errorSum;
-		flash_unpadded.pid.delta_t = temp_controller.flash.pid.delta_t;
-		flash_unpadded.pid.max_P = temp_controller.flash.pid.max_P;
-		flash_unpadded.pid.out = temp_controller.flash.pid.out;
+	if(UART_rxBuffer[0] == 'S' && UART_rxBuffer[1] == 'S' && UART_rxBuffer[2] == 'S' && UART_rxBuffer[3] == 'S'){
+		temp_controller.flash.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));
+		HAL_UART_Transmit(&huart2, (uint8_t*)&temp_controller.flash, sizeof (temp_controller.flash),1000);
+		HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
+		HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 16);
+		return;
+	}
+	if(UART_rxBuffer[0] == 'T' && UART_rxBuffer[1] == 'T' && UART_rxBuffer[2] == 'T' && UART_rxBuffer[3] == 'T'){
 
-		flash_unpadded.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&flash_unpadded, sizeof(flash_unpadded) - sizeof(flash_unpadded.crc));
-		HAL_UART_Transmit(&huart2, (uint8_t*)&flash_unpadded, sizeof (flash_unpadded),1000);
+		temp_controller.flash.target_temp = (int32_t)UART_rxBuffer[4] | (int32_t)UART_rxBuffer[5]<<8 | (int32_t)UART_rxBuffer[6]<<16 | (int32_t)UART_rxBuffer[7]<<24;
+		HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
+		HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 16);
+		return;
 	}
-	else{
-		//temp_controller.flash.target_temp = UART_rxBuffer;
-	}
+
 	HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
-	HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 64);
+	HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 16);
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
@@ -109,6 +66,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 
 void USART2_callback(){
 
+	HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 16);
 }
 
 //Interrupt function called on completed ADC conversion
