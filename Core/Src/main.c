@@ -155,6 +155,13 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim12);	//10miliseconds interrupt
   HAL_TIM_Base_Start_IT(&htim6); 	//100miliseconds interrupt
   HAL_TIM_Base_Start_IT(&htim7); 	//10second interrupt
+
+  HAL_NVIC_SetPriority(TIM3_IRQn, 1, 0);
+  HAL_NVIC_SetPriority(TIM4_IRQn, 1, 0);
+  HAL_NVIC_SetPriority(TIM6_DAC1_IRQn, 1, 0);
+  HAL_NVIC_SetPriority(TIM7_IRQn, 1, 0);
+  HAL_NVIC_SetPriority(TIM12_IRQn, 1, 0);
+  HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
   //-----OLED display setup----
   u8g2_Setup_ssd1306_128x64_noname_f(&u8g2, U8G2_R0, u8x8_byte_stm32_hw_i2c, u8x8_stm32_gpio_and_delay);
   u8g2_InitDisplay(&u8g2);
@@ -162,7 +169,7 @@ int main(void)
   Redraw_display();
   temp_controller.flash.menu = 1;
   //main cycle
-  HAL_UART_Receive_IT (&huart2, UART_rxBuffer, 16);
+  int a=64;
   while(1){
 	  //HAL_UART_Receive_IT (&huart2, UART_rxBuffer, 5);
 	  if(flag_10ms){
@@ -177,10 +184,10 @@ int main(void)
 		  flag_200ms=0;
 		  //blink();
 		  Redraw_display();
-		  SendTempUART();
+		  SendMeasurements_UART();
 	  	  }
 	  if(temp_controller.flash.menu == SNAKE_MENU)	snake_start(&u8g2);
-	  HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 16); //Dont knwo why but without it, forgets interrupt
+	  HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], a); //Dont knwo why but without it, forgets interrupt
 	  HAL_Delay(1);
   }
 

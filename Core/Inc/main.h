@@ -37,6 +37,7 @@ extern "C" {
 #include "INA226.h"
 #include "snake_start.h"
 #include <flash.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

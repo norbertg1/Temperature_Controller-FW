@@ -15,7 +15,7 @@ BMP280_data BMP280_sensor;
 struct _BMP280_HandleTypedef bmp280;
 
 short cnt_adc=0;
-uint8_t UART_rxBuffer[64];
+uint8_t UART_rxBuffer[128];
 
 void set_duty_cycle(float percent){
 	int set_pwm = (temp_controller.pwm_counter_period/100.0)*percent;
@@ -72,9 +72,9 @@ void write_flash(){
 
 }
 
-void SendTempUART(){
+void SendMeasurements_UART(){
 
-	HAL_UART_Transmit(&huart2, (uint8_t*)&temp_controller.current_temp, sizeof (temp_controller.current_temp),1000);
+	HAL_UART_Transmit(&huart2, (uint8_t*)&temp_controller.current_temp, 4*sizeof(float),1000); //Send Current Temp., Votage, Current, Power
 
 }
 

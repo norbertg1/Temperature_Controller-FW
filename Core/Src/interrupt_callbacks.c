@@ -45,19 +45,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		temp_controller.flash.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));
 		HAL_UART_Transmit(&huart2, (uint8_t*)&temp_controller.flash, sizeof (temp_controller.flash),1000);
 		HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
-		HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 16);
 		return;
 	}
-	if(UART_rxBuffer[0] == 'T' && UART_rxBuffer[1] == 'T' && UART_rxBuffer[2] == 'T' && UART_rxBuffer[3] == 'T'){
-
-		temp_controller.flash.target_temp = (int32_t)UART_rxBuffer[4] | (int32_t)UART_rxBuffer[5]<<8 | (int32_t)UART_rxBuffer[6]<<16 | (int32_t)UART_rxBuffer[7]<<24;
-		HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
-		HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 16);
-		return;
+	uint32_t crc32_received 	= (uint32_t)UART_rxBuffer[60] | (uint32_t)UART_rxBuffer[61]<<8 | (uint32_t)UART_rxBuffer[62]<<16 | (uint32_t)UART_rxBuffer[63]<<24;
+	uint32_t crc32_calculated	= HAL_CRC_Calculate(&hcrc, (uint32_t *)&UART_rxBuffer, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));
+	if(crc32_received == crc32_calculated){
+		for(int i=0;i<400;i++)	HAL_UART_Transmit(&huart2, "OOOO", 4*sizeof (char),2000);
+		memcpy(&temp_controller.flash, UART_rxBuffer, sizeof(temp_controller.flash));
+	}
+	else{
+		for(int i=0;i<40;i++)	HAL_UART_Transmit(&huart2, "FFFF", 4*sizeof (char),2000);
 	}
 
 	HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
-	HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 16);
 }
 
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
@@ -66,7 +66,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
 
 void USART2_callback(){
 
-	HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 16);
+	//HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], 64);
 }
 
 //Interrupt function called on completed ADC conversion
