@@ -47,11 +47,18 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
 		return;
 	}
+
+	if(UART_rxBuffer[0] == 'R' && UART_rxBuffer[1] == 'R' && UART_rxBuffer[2] == 'R' && UART_rxBuffer[3] == 'R' && UART_rxBuffer[3] == 'R' && UART_rxBuffer[4] == 'R' && UART_rxBuffer[5] == 'R' && UART_rxBuffer[6] == 'R'){
+		NVIC_SystemReset ();
+		return;
+	}
+
 	uint32_t crc32_received 	= (uint32_t)UART_rxBuffer[60] | (uint32_t)UART_rxBuffer[61]<<8 | (uint32_t)UART_rxBuffer[62]<<16 | (uint32_t)UART_rxBuffer[63]<<24;
 	uint32_t crc32_calculated	= HAL_CRC_Calculate(&hcrc, (uint32_t *)&UART_rxBuffer, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));
 	if(crc32_received == crc32_calculated){
 		for(int i=0;i<400;i++)	HAL_UART_Transmit(&huart2, "OOOO", 4*sizeof (char),2000);
 		memcpy(&temp_controller.flash, UART_rxBuffer, sizeof(temp_controller.flash));
+		write_flash();
 	}
 	else{
 		for(int i=0;i<40;i++)	HAL_UART_Transmit(&huart2, "FFFF", 4*sizeof (char),2000);

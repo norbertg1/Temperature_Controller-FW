@@ -171,14 +171,8 @@ int main(void)
   //main cycle
   int a=64;
   while(1){
-	  //HAL_UART_Receive_IT (&huart2, UART_rxBuffer, 5);
 	  if(flag_10ms){
 		  flag_10ms=0;
-	  }
-	  if(flag_1s){
-		  flag_1s=0;
-		  INA226_MeasureAll(&INA226_1);
-		  INA226_MeasureAll(&INA226_2);
 	  }
 	  if(flag_200ms){
 		  flag_200ms=0;
@@ -186,6 +180,11 @@ int main(void)
 		  Redraw_display();
 		  SendMeasurements_UART();
 	  	  }
+	  if(flag_1s){
+		  flag_1s=0;
+		  INA226_MeasureAll(&INA226_1);
+		  INA226_MeasureAll(&INA226_2);
+	  }
 	  if(temp_controller.flash.menu == SNAKE_MENU)	snake_start(&u8g2);
 	  HAL_UART_Receive_IT (&huart2, &UART_rxBuffer[0], a); //Dont knwo why but without it, forgets interrupt
 	  HAL_Delay(1);

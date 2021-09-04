@@ -74,7 +74,13 @@ void write_flash(){
 
 void SendMeasurements_UART(){
 
-	HAL_UART_Transmit(&huart2, (uint8_t*)&temp_controller.current_temp, 4*sizeof(float),1000); //Send Current Temp., Votage, Current, Power
+	uint8_t buffer[20];
+	memcpy(buffer,&temp_controller.current_temp,16);
+	uint32_t crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&buffer, 16);
+	uint32_t *p = (&buffer[16]);
+	*p = crc;
+	//memcpy(&buffer[16],&crc,4);
+	HAL_UART_Transmit(&huart2, (uint8_t*)buffer, 20,1000); //Send Current Temp., Votage, Current, Power
 
 }
 
