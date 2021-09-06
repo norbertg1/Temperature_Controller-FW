@@ -167,7 +167,7 @@ int main(void)
   u8g2_InitDisplay(&u8g2);
   u8g2_SetPowerSave(&u8g2, 0);
   Redraw_display();
-  temp_controller.flash.menu = 1;
+  //temp_controller.flash.menu = 1;
   //main cycle
   int a=64;
   while(1){

@@ -33,7 +33,7 @@
 #define SET_MODE_MENU					105	//Heating or cooling
 #define CHOOSE_NTC_MENU					106
 #define SET_FREQUENCY_MENU				107
-#define SET_TEMPOFFSET_MENU					108
+#define SET_TEMPOFFSET_MENU				108
 #define SET_DEFAULTS_MENU				109
 #define MENU_LEVEL2_MAX					109
 

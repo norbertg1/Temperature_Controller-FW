@@ -167,12 +167,15 @@ void menu15(){
 	short current_temp_str_nr;
 
 	if(INA226_1.Result.Current_uA 	>= 	INA226_2.Result.Current_uA) {
-		temp_controller.current	= 	INA226_1.Result.Current_uA/1E6;
 		temp_controller.power 	= 	INA226_1.Result.Power_uW /1E6;
+		temp_controller.current	= 	INA226_1.Result.Current_uA/1E6;
+		temp_controller.voltage	= 	INA226_1.Result.BusVoltage_uV/1E6;
 	}
 	else {
-		temp_controller.current =	INA226_2.Result.Current_uA/1E6;
 		temp_controller.power 	= 	INA226_2.Result.Power_uW /1E6;
+		temp_controller.current =	INA226_2.Result.Current_uA/1E6;
+		temp_controller.voltage	= 	INA226_2.Result.BusVoltage_uV/1E6;
+
 	}
 
 	current_temp_str_nr = ftoa(temp_controller.current_temp, current_temp_str, 2);
