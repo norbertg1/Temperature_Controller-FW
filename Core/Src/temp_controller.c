@@ -17,8 +17,24 @@ struct _BMP280_HandleTypedef bmp280;
 short cnt_adc=0;
 uint8_t UART_rxBuffer[128];
 
+//There is a some issue with TPS52401 when the PWM is too long zero, that is a some solution
+void recycle_pwm(float percent){
+	static uint8_t flag = 0;
+	if(percent == 0) flag = 1;
+	if(flag == 1 && percent != 0){
+		flag=0;
+		uint32_t set_pwm = (temp_controller.pwm_counter_period/100.0)*temp_controller.flash.pid.max_P;
+		TIM2->CCR1=set_pwm;
+		TIM2->CCR2=set_pwm;
+		for(uint32_t i =0; i<100000; i++){
+			;;
+		}
+	}
+}
+
 void set_duty_cycle(float percent){
-	int set_pwm = (temp_controller.pwm_counter_period/100.0)*percent;
+	uint32_t set_pwm = (temp_controller.pwm_counter_period/100.0)*percent;
+	recycle_pwm(percent);
 	TIM2->CCR1=set_pwm;
 	TIM2->CCR2=set_pwm;
 }
@@ -57,7 +73,7 @@ void read_flash(){
 	uint32_t crc;
 
 	flash_ReadN(0,&temp_controller.flash,ceil((sizeof(temp_controller.flash)+4)/8.0),DATA_TYPE_64);
-	crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
+	crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash+1, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
 	if(crc != temp_controller.flash.crc)	set_defaults();
 	set_duty_cycle(0);
 	temp_controller.flash.pid.out = 0;
@@ -67,7 +83,7 @@ void read_flash(){
 }
 
 void write_flash(){
-	temp_controller.flash.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
+	temp_controller.flash.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash+1, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
 	flash_WriteN(0, &temp_controller.flash,ceil((sizeof(temp_controller.flash)+4)/8.0),DATA_TYPE_64);
 
 }

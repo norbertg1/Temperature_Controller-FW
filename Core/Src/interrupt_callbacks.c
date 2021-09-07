@@ -40,21 +40,30 @@ void TIM7_callback(){ //10s interrupt, 0.1Hz
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	HAL_NVIC_DisableIRQ(TIM6_DAC1_IRQn);
+	HAL_NVIC_DisableIRQ(TIM6_DAC1_IRQn);	//Read settings
 	if(UART_rxBuffer[0] == 'S' && UART_rxBuffer[1] == 'S' && UART_rxBuffer[2] == 'S' && UART_rxBuffer[3] == 'S'){
-		temp_controller.flash.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));
+		temp_controller.flash.crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash+1, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));
 		HAL_UART_Transmit(&huart2, (uint8_t*)&temp_controller.flash, sizeof (temp_controller.flash),1000);
 		HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
 		return;
 	}
-
+	//Reset The device
 	if(UART_rxBuffer[0] == 'R' && UART_rxBuffer[1] == 'R' && UART_rxBuffer[2] == 'R' && UART_rxBuffer[3] == 'R' && UART_rxBuffer[3] == 'R' && UART_rxBuffer[4] == 'R' && UART_rxBuffer[5] == 'R' && UART_rxBuffer[6] == 'R'){
-		NVIC_SystemReset ();
+		for(int i=0;i<400;i++)	HAL_UART_Transmit(&huart2, "OOOO", 4*sizeof (char),2000);
+		NVIC_SystemReset();
 		return;
 	}
-
-	uint32_t crc32_received 	= (uint32_t)UART_rxBuffer[60] | (uint32_t)UART_rxBuffer[61]<<8 | (uint32_t)UART_rxBuffer[62]<<16 | (uint32_t)UART_rxBuffer[63]<<24;
-	uint32_t crc32_calculated	= HAL_CRC_Calculate(&hcrc, (uint32_t *)&UART_rxBuffer, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));
+	//Set Defaults values
+	if(UART_rxBuffer[0] == 'D' && UART_rxBuffer[1] == 'D' && UART_rxBuffer[2] == 'D' && UART_rxBuffer[3] == 'D' && UART_rxBuffer[3] == 'D' && UART_rxBuffer[4] == 'D' && UART_rxBuffer[5] == 'D' && UART_rxBuffer[6] == 'D'){
+		set_defaults();
+		write_flash();
+		for(int i=0;i<400;i++)	HAL_UART_Transmit(&huart2, "OOOO", 4*sizeof (char),2000);
+		HAL_NVIC_EnableIRQ(TIM6_DAC1_IRQn);
+		return;
+	}
+	//Write settings to the device
+	uint32_t crc32_received 	= (uint32_t)UART_rxBuffer[0] | (uint32_t)UART_rxBuffer[1]<<8 | (uint32_t)UART_rxBuffer[2]<<16 | (uint32_t)UART_rxBuffer[3]<<24;
+	uint32_t crc32_calculated	= HAL_CRC_Calculate(&hcrc, (uint32_t *)&UART_rxBuffer+1, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));
 	if(crc32_received == crc32_calculated){
 		for(int i=0;i<400;i++)	HAL_UART_Transmit(&huart2, "OOOO", 4*sizeof (char),2000);
 		memcpy(&temp_controller.flash, UART_rxBuffer, sizeof(temp_controller.flash));
@@ -102,7 +111,8 @@ void calc_adc_values(){
 	cnt_adc							=		0;
 	adc[0]							=		0;
 	adc[1]							=		0;
-	temp_controller.current_temp	=		0.95*temp_controller.current_temp + 0.05*ntc.temperature;
+	float a							=		temp_controller.flash.pid.filter;
+	temp_controller.current_temp	=		a*temp_controller.current_temp + (1-a)*ntc.temperature;
 }
 
 //gives back the temperature based on NTC resistance value, lookup table needed!

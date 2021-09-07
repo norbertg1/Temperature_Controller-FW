@@ -123,6 +123,7 @@ void set_defaults(){
 	temp_controller.flash.pid.Kd= 4100;
 	temp_controller.flash.pid.Ki= 3;
 	temp_controller.flash.pid.max_P = 60;
+	temp_controller.flash.pid.filter = 0.98;
 	temp_controller.flash.mode = -1;
 	temp_controller.flash.sensor = 1;
 	temp_controller.flash.freq = 50;

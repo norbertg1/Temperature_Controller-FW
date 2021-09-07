@@ -74,20 +74,21 @@ typedef struct PID{
 	float 	errorSum;
 	float 	delta_t;
 	int 	max_P;         //in percent
+	float	filter;
 	float 	out;
 }PID;
 
 typedef struct flash{
+	uint32_t 	crc;
 	int 		target_temp;
 	int			offset_temp;
 	short 		menu;
 	short 		defaults;
 	short 		set_power;
-	int 		mode;			//-1 ---> cooling, 1 ---> heating
+	int 		mode;		//-1 ---> cooling, 1 ---> heating
 	int 		sensor;		//NTC sensor choose from flash data
 	long int	freq;		//PWM frequency for power modules
 	PID	  		pid;
-	uint32_t 	crc;
 }flash;
 
 typedef struct    {
