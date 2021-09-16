@@ -70,6 +70,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		write_flash();
 	}
 	else{
+		//flash tttt;
+		//memcpy(&tttt, UART_rxBuffer, sizeof(tttt));
 		for(int i=0;i<40;i++)	HAL_UART_Transmit(&huart2, "FFFF", 4*sizeof (char),2000);
 	}
 

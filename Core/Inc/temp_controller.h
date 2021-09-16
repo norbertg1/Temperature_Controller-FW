@@ -75,7 +75,6 @@ typedef struct PID{
 	float 	delta_t;
 	int 	max_P;         //in percent
 	float	filter;
-	float 	out;
 }PID;
 
 typedef struct flash{
@@ -99,6 +98,7 @@ typedef struct    {
 	long int	pwm_counter_period;
 	short		ntc_interrupted;
 	short 		dummy;		//if non exist menu is set, step this variable with encoder
+	float 		out;
 	flash 		flash;
 } temperature_controller_data;
 

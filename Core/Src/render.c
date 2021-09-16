@@ -137,7 +137,7 @@ void menu1(){
 	char target_temp_str[10];
 	short target_temp_str_nr;
 	short pwm_pixels = 40;
-	short pwm = fabs(temp_controller.flash.pid.out);
+	short pwm = fabs(temp_controller.out);
 	current_str_nr = ftoa(temp_controller.current, current_str, 1);
 	power_str_nr = ftoa(temp_controller.power, power_str, 1);
 	u8g2_SetFont(&u8g2, u8g2_font_helvR08_te);

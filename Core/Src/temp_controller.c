@@ -48,7 +48,7 @@ void update_pid(){
 	d_error = error - prev_error;
 	prev_error = error;
 	float kd = temp_controller.flash.pid.Kd/10.0 * d_error * temp_controller.flash.pid.delta_t;
-	temp_controller.flash.pid.out = temp_controller.flash.mode * (
+	temp_controller.out = temp_controller.flash.mode * (
 			temp_controller.flash.pid.Kp/10.0 * error
 			+ temp_controller.flash.pid.Kd/10.0 * d_error * temp_controller.flash.pid.delta_t
 			+ temp_controller.flash.pid.Ki/10.0 * temp_controller.flash.pid.errorSum);
@@ -57,13 +57,13 @@ void update_pid(){
 	temp_controller.flash.pid.errorSum += 0.05*error;
 	if(temp_controller.flash.pid.errorSum > 200) temp_controller.flash.pid.errorSum=200;
 	if(temp_controller.flash.pid.errorSum < -200) temp_controller.flash.pid.errorSum=-200;
-	if(temp_controller.flash.pid.out > temp_controller.flash.pid.max_P) temp_controller.flash.pid.out = temp_controller.flash.pid.max_P;
-	if(temp_controller.flash.pid.out < 0) temp_controller.flash.pid.out = 0; 					//The hardware doesnt support opposite
+	if(temp_controller.out > temp_controller.flash.pid.max_P) temp_controller.out = temp_controller.flash.pid.max_P;
+	if(temp_controller.out < 0) temp_controller.out = 0; 					//The hardware doesnt support opposite
 	if(temp_controller.current_temp > CUT_OFF_TEMP && temp_controller.flash.mode == -1)	temp_controller.flash.menu = TOO_HOT_MENU;
 
-	if(temp_controller.flash.menu == TOO_HOT_MENU)					temp_controller.flash.pid.out = 0;
-	if(temp_controller.flash.menu == NTC_INFINTE_RESISTANCE_MENU) 	temp_controller.flash.pid.out = 0;
-	if (temp_controller.flash.menu != SET_P_MENU)  					set_duty_cycle(temp_controller.flash.pid.out);
+	if(temp_controller.flash.menu == TOO_HOT_MENU)					temp_controller.out = 0;
+	if(temp_controller.flash.menu == NTC_INFINTE_RESISTANCE_MENU) 	temp_controller.out = 0;
+	if (temp_controller.flash.menu != SET_P_MENU)  					set_duty_cycle(temp_controller.out);
 	t=HAL_GetTick();
 	last_t[cnt++]=temp_controller.flash.pid.delta_t*1000;
 	if (cnt==99) cnt=0;
@@ -76,7 +76,7 @@ void read_flash(){
 	crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&temp_controller.flash+1, sizeof(temp_controller.flash) - sizeof(temp_controller.flash.crc));	//Calculate the CRC only for values which are set by button and exclude the CRC variable
 	if(crc != temp_controller.flash.crc)	set_defaults();
 	set_duty_cycle(0);
-	temp_controller.flash.pid.out = 0;
+	temp_controller.out = 0;
 	temp_controller.flash.menu = 0;
 	temp_controller.flash.pid.errorSum = 0;
 	temp_controller.pwm_counter_period = (HAL_RCC_GetSysClockFreq()/1E3)/temp_controller.flash.freq;
@@ -92,7 +92,7 @@ void SendMeasurements_UART(){
 
 	uint8_t buffer[24];
 	memcpy(buffer,&temp_controller.current_temp,16);
-	memcpy(buffer+16,&temp_controller.flash.pid.out,4);
+	memcpy(buffer+16,&temp_controller.out,4);
 	uint32_t crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)&buffer, 20);
 	uint32_t *p = (&buffer[20]);
 	*p = crc;
