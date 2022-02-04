@@ -108,5 +108,3 @@ extern UART_HandleTypeDef huart2;
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
