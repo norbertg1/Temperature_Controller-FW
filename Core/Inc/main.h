@@ -67,6 +67,7 @@ extern SDADC_HandleTypeDef hsdadc1;
 extern SDADC_HandleTypeDef hsdadc2;
 extern CRC_HandleTypeDef hcrc;
 extern UART_HandleTypeDef huart2;
+extern DAC_HandleTypeDef hdac1;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -89,8 +90,6 @@ extern UART_HandleTypeDef huart2;
 #define GREEN_LED_GPIO_Port GPIOA
 #define PUSH_BUTTON_Pin GPIO_PIN_4
 #define PUSH_BUTTON_GPIO_Port GPIOA
-#define RED_LED_Pin GPIO_PIN_5
-#define RED_LED_GPIO_Port GPIOA
 #define ADC_RES__Pin GPIO_PIN_0
 #define ADC_RES__GPIO_Port GPIOB
 #define ADC_RES_B1_Pin GPIO_PIN_1

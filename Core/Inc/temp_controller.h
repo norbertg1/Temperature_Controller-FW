@@ -55,6 +55,7 @@
 #define	TEMP_OFFSET_MAX					100		//Temperature max offset which is added to temperature reading,	/10
 #define	TEMP_OFFSET_MIN					-100	//Temperature min offset which is added to temperature reading, /10
 #define	MAX_POWER_PERCENT				80
+#define VREF							1.225	//Voltage of LM4041 reference component
 
 uint16_t adc_buf[ADC_BUF_LEN];
 

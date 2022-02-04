@@ -56,6 +56,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DAC_HandleTypeDef hdac1;
 extern I2C_HandleTypeDef hi2c2;
 extern DMA_HandleTypeDef hdma_sdadc1;
 extern DMA_HandleTypeDef hdma_sdadc2;
@@ -314,6 +315,7 @@ void TIM6_DAC1_IRQHandler(void)
 	TIM6_callback();
   /* USER CODE END TIM6_DAC1_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
+  HAL_DAC_IRQHandler(&hdac1);
   /* USER CODE BEGIN TIM6_DAC1_IRQn 1 */
 
   /* USER CODE END TIM6_DAC1_IRQn 1 */
