@@ -1,8 +1,9 @@
-[submodule "Drivers/u8g2"]
+[submodule "u8g2"]
 	path = Drivers/u8g2
 	url = https://github.com/olikraus/u8g2
-[submodule "Drivers/INA226"]
+[submodule "INA226"]
 	path = Drivers/INA226
 	url = https://github.com/norbertg1/AutoFox_INA226
-[submodule "Core/Src/snake_game"]
+[submodule "Snake Game"]
+	path = Core/Src/snake_game
 	url = https://github.com/norbertg1/Snake-game
