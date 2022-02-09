@@ -20,12 +20,12 @@
 #define ROTARY_SLOW						200 // [ms] rotary speed slow
 
 #define STARTUP_MENU					0
-#define MENU_LEVEL1_MIN					1
+#define MENU_LEVEL0_MIN					1
 #define SET_Temp_MENU					1
 #define SET_P_MENU						2
-#define MENU_LEVEL1_MAX					2
+#define MENU_LEVEL0_MAX					2
 
-#define MENU_LEVEL2_MIN					101
+#define MENU_LEVEL1_MIN					101
 #define SET_Kp_MENU						101
 #define SET_Kd_MENU						102
 #define SET_Ki_MENU						103
@@ -35,7 +35,7 @@
 #define SET_FREQUENCY_MENU				107
 #define SET_TEMPOFFSET_MENU				108
 #define SET_DEFAULTS_MENU				109
-#define MENU_LEVEL2_MAX					109
+#define MENU_LEVEL1_MAX					109
 
 #define SNAKE_MENU						200
 #define TOO_HOT_MENU					201		//When the Peltier is connected with wrong polarity, the temperature can goo very high within seconds. This menu prevents it with cut off power.

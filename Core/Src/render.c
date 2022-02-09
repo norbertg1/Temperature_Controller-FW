@@ -127,6 +127,7 @@ void set_defaults(){
 	temp_controller.flash.mode = -1;
 	temp_controller.flash.sensor = 1;
 	temp_controller.flash.freq = 50;
+	temp_controller.current_temp = 0;
 }
 
 void menu1(){

@@ -33,12 +33,13 @@ void recycle_pwm(float percent){
 }
 
 void set_duty_cycle(float percent){
-	uint32_t set_pwm 	=	(temp_controller.pwm_counter_period/100.0)*percent;
-	float set_voltage 	=	percent*(4096/VREF);
+	uint32_t set_pwm 		=	(temp_controller.pwm_counter_period/100.0)*percent;
+	uint32_t set_voltage 	=	(4095*(percent/100));
+	set_voltage				=	set_voltage/2; //The DAC output is driving a custom linear current source, 1.5V is more than enough on output.
 	recycle_pwm(percent);
-	TIM2->CCR1			=	set_pwm;
-	TIM2->CCR2			=	set_pwm;
-	HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, set_voltage);
+	TIM2->CCR1				=	set_pwm;
+	TIM2->CCR2				=	set_pwm;
+	DAC1->DHR12R1			=	set_voltage;
 }
 
 void update_pid(){
@@ -134,13 +135,13 @@ void toggle_green_LED(){
 	HAL_GPIO_WritePin(GREEN_LED_GPIO_Port, GREEN_LED_Pin, HAL_GPIO_ReadPin(GREEN_LED_GPIO_Port, GREEN_LED_Pin)^1);
 }
 void turn_on_red_LED(){
-	//HAL_GPIO_WritePin(RED_LED_GPIO_Port, RED_LED_Pin, 1);
+	HAL_GPIO_WritePin(RED_LED_GPIO_Port, RED_LED_Pin, 1);
 }
 void turn_off_red_LED(){
-	//HAL_GPIO_WritePin(RED_LED_GPIO_Port, RED_LED_Pin, 0);
+	HAL_GPIO_WritePin(RED_LED_GPIO_Port, RED_LED_Pin, 0);
 }
 void toggle_red_LED(){
-	//HAL_GPIO_WritePin(RED_LED_GPIO_Port, RED_LED_Pin, HAL_GPIO_ReadPin(RED_LED_GPIO_Port, RED_LED_Pin)^1);
+	HAL_GPIO_WritePin(RED_LED_GPIO_Port, RED_LED_Pin, HAL_GPIO_ReadPin(RED_LED_GPIO_Port, RED_LED_Pin)^1);
 }
 
 void blink(){

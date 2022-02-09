@@ -151,6 +151,7 @@ int main(void)
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);				//PWM
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);				//PWM
   HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, 1); 		//Enable TPS565201
+  HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
   //-----Timer interrupt functions ----
   HAL_TIM_Base_Start_IT(&htim3); 	//1second interrupt
   HAL_TIM_Base_Start_IT(&htim4);	//10miliseconds interrupt
@@ -169,7 +170,8 @@ int main(void)
   u8g2_InitDisplay(&u8g2);
   u8g2_SetPowerSave(&u8g2, 0);
   Redraw_display();
-  //temp_controller.flash.menu = 1;
+  read_flash();
+  temp_controller.current_temp = 25;
   //main cycle
   int a=64;
   while(1){
@@ -362,11 +364,11 @@ static void MX_DAC1_Init(void)
   {
     Error_Handler();
   }
-  /** DAC channel OUT2 config
+  /** DAC channel OUT1 config
   */
   sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
   sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
-  if (HAL_DAC_ConfigChannel(&hdac1, &sConfig, DAC_CHANNEL_2) != HAL_OK)
+  if (HAL_DAC_ConfigChannel(&hdac1, &sConfig, DAC_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -935,7 +937,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOE_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, EN2_Pin|GREEN_LED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, EN2_Pin|GREEN_LED_Pin|RED_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : ENCODER_PUSH_BUTTON_Pin */
   GPIO_InitStruct.Pin = ENCODER_PUSH_BUTTON_Pin;
@@ -949,18 +951,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : EN2_Pin GREEN_LED_Pin */
-  GPIO_InitStruct.Pin = EN2_Pin|GREEN_LED_Pin;
+  /*Configure GPIO pins : EN2_Pin GREEN_LED_Pin RED_LED_Pin */
+  GPIO_InitStruct.Pin = EN2_Pin|GREEN_LED_Pin|RED_LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PUSH_BUTTON_Pin */
-  GPIO_InitStruct.Pin = PUSH_BUTTON_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(PUSH_BUTTON_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
