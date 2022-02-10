@@ -137,7 +137,9 @@ int main(void)
   MX_USART2_UART_Init();
   MX_DAC1_Init();
   /* USER CODE BEGIN 2 */
+  htim2.Init.Period = temp_controller.pwm_counter_period;
   //------- SDADC DMA setup ----------------------------------
+  read_flash();
   HAL_SDADC_CalibrationStart(&hsdadc1, SDADC_CALIBRATION_SEQ_3);
   HAL_SDADC_PollForCalibEvent(&hsdadc1, HAL_MAX_DELAY);
   HAL_SDADC_Start_DMA(&hsdadc1, (uint32_t*) adc_buf, 1);
@@ -170,7 +172,6 @@ int main(void)
   u8g2_InitDisplay(&u8g2);
   u8g2_SetPowerSave(&u8g2, 0);
   Redraw_display();
-  read_flash();
   temp_controller.current_temp = 25;
   //main cycle
   int a=64;
@@ -882,10 +883,10 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 38400;
+  huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_EVEN;
+  huart2.Init.Parity = UART_PARITY_NONE;
   huart2.Init.Mode = UART_MODE_TX_RX;
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
