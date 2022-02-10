@@ -80,7 +80,7 @@ float get_rotate_slow_value(temperature_controller_data* controller, int menu){
 	}
 	if(controller->flash.target_temp > 1000 && (temp_controller.flash.menu == SET_Temp_MENU || temp_controller.flash.menu == STARTUP_MENU)) {
 		temp_controller.flash.target_temp = (round(temp_controller.flash.target_temp/10))*10;
-		return 1;
+		return 10;
 	}
 	return 1;
 }
