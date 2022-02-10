@@ -65,7 +65,7 @@ void *get_rotating_menu_item(temperature_controller_data* controller){
 	if(controller->flash.menu==SET_MODE_MENU)			return	&controller->flash.mode;
 	if(controller->flash.menu==CHOOSE_NTC_MENU)			return	&controller->flash.sensor;
 	if(controller->flash.menu==SET_FREQUENCY_MENU)		return	&controller->flash.freq;
-	if(controller->flash.menu==SET_TEMPOFFSET_MENU)			return	&controller->flash.offset_temp;
+	if(controller->flash.menu==SET_TEMPOFFSET_MENU)		return	&controller->flash.offset_temp;
 	return &controller->dummy;
 }
 
