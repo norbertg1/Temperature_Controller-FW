@@ -25,4 +25,4 @@ With rotating the knob you can change the values. Pushing it you move over the m
 \
 \
 Menu1:
-    <img src="pic1.jpg" alt=" ">
+    <img src="pics/TempController.gif" alt=" ">
