@@ -12,15 +12,16 @@ With rotating the knob you can change the values. Pushing it you move over the m
     - Set Kp const.
     - Set Kd const.
     - Set Ki const.
+- **Menu 3** - Options
     - Set max. Power
     - Set mode (cooling or heating)
     - Choose NTC type
     - Set PWM output frequency (currently the HW doesn support)
-- **Menu 3** - Options
+- **Menu 4** - Options
     - Set temp. offset
-- **Menu 4** - Like menu 1, but you can directly set the output power in %
+- **Menu 5** - Like menu 1, but you can directly set the output power in %
     - Set output PWM duty
-- **Menu 5** - Set defaults
+- **Menu 6** - Set defaults
     - With long pressing the knob you can restore all values to its defaults
 \
 \
