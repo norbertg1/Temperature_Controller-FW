@@ -121,7 +121,7 @@ void calc_adc_values(){
 float lookup_temp(float R){
     int size, i = 0;
     float deltaT,deltaR,T;
-    int (*lookup_temp_table)[2];
+    float (*lookup_temp_table)[2];
     switch(temp_controller.flash.sensor)
     {
     case NTCS0603E3222FMT:
@@ -142,9 +142,9 @@ float lookup_temp(float R){
         	break;
     }
     int x,y;
-    while(R<lookup_temp_table[i][1]){
+    while(R>lookup_temp_table[i][1]){
     	i++;
-        if((i+1)==size/sizeof(int)/2) {
+        if((i+1)==size/sizeof(float)/2) {
                 deltaT = lookup_temp_table[i][0]-lookup_temp_table[i-1][0];
                 deltaR = lookup_temp_table[i][1]-lookup_temp_table[i-1][1];
                 T=lookup_temp_table[i][0]+(R-lookup_temp_table[i][1])*deltaT/deltaR;
@@ -153,6 +153,7 @@ float lookup_temp(float R){
     }
     deltaT = lookup_temp_table[i+1][0]-lookup_temp_table[i][0];
     deltaR = lookup_temp_table[i+1][1]-lookup_temp_table[i][1];
+
     T=lookup_temp_table[i][0]+(R-lookup_temp_table[i][1])*deltaT/deltaR;
 
     if(0){
